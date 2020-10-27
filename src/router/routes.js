@@ -1,69 +1,47 @@
-import DashboardLayout from "@/layout/dashboard/DashboardLayout.vue";
-// GeneralViews
-import NotFound from "@/pages/NotFoundPage.vue";
+import MainLayout from "@/layout/MainLayout.vue";
 
-// Admin pages
-const Dashboard = () => import(/* webpackChunkName: "dashboard" */"@/pages/Dashboard.vue");
-const Profile = () => import(/* webpackChunkName: "common" */ "@/pages/Profile.vue");
-const Notifications = () => import(/* webpackChunkName: "common" */"@/pages/Notifications.vue");
-const Icons = () => import(/* webpackChunkName: "common" */ "@/pages/Icons.vue");
-const Maps = () => import(/* webpackChunkName: "common" */ "@/pages/Maps.vue");
-const Typography = () => import(/* webpackChunkName: "common" */ "@/pages/Typography.vue");
-const TableList = () => import(/* webpackChunkName: "common" */ "@/pages/TableList.vue");
+// Pages
+import Users from "@/pages/Users.vue";
+import Customers from "@/pages/Customers.vue";
+import Projects from "@/pages/Projects.vue";
+import Reports from "@/pages/Reports.vue";
+import NotFound from "@/pages/NotFoundPage.vue";
 
 const routes = [
   {
     path: "/",
-    component: DashboardLayout,
-    redirect: "/dashboard",
+    component: MainLayout,
+    redirect: "/users",
     children: [
       {
-        path: "dashboard",
-        name: "dashboard",
-        component: Dashboard
+        path: "users",
+        name: "Benutzer",
+        component: Users
       },
       {
-        path: "profile",
-        name: "profile",
-        component: Profile
+        path: "customers",
+        name: "Kunden",
+        component: Customers
       },
       {
-        path: "notifications",
-        name: "notifications",
-        component: Notifications
+        path: "projects",
+        name: "Projekte",
+        component: Projects
       },
       {
-        path: "icons",
-        name: "icons",
-        component: Icons
+        path: "reports",
+        name: "Zeiterfassung",
+        component: Reports
       },
+      /*
       {
-        path: "maps",
-        name: "maps",
-        component: Maps
+        path: "*",
+        name: "Fehler",
+        component: NotFound
       },
-      {
-        path: "typography",
-        name: "typography",
-        component: Typography
-      },
-      {
-        path: "table-list",
-        name: "table-list",
-        component: TableList
-      }
+      */
     ]
-  },
-  { path: "*", component: NotFound },
+  }
 ];
-
-/**
- * Asynchronously load view (Webpack Lazy loading compatible)
- * The specified component must be inside the Views folder
- * @param  {string} name  the filename (basename) of the view to load.
-function view(name) {
-   var res= require('../components/Dashboard/Views/' + name + '.vue');
-   return res;
-};**/
 
 export default routes;
