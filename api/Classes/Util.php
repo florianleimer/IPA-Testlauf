@@ -181,6 +181,15 @@ class Util
     if (!self::isCleanNumber($value) || strlen($value) < $minlength) return false;
     else return true;
   }
+
+  /**
+   * @param $value
+   * @return int|bool returns integer or false on fail
+   */
+  public static function filterInteger($value)
+  {
+    return filter_var($value, FILTER_VALIDATE_INT);
+  }
 }
 
 ?>

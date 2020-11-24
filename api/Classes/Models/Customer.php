@@ -47,11 +47,12 @@ class Customer
   }
 
   /**
-   * @param int $cid
+   * @param mixed $cid
    */
-  public function setCid(int $cid): void
+  public function setCid($cid): void
   {
-    $this->cid = $cid;
+    $cid = Util::filterInteger($cid);
+    if ($cid) $this->cid = $cid;
   }
 
   /**
@@ -129,11 +130,11 @@ class Customer
   {
     $customer = new Customer();
 
-    $customer->cid = $data['cid'] ?? 0;
-    $customer->name = $data['name'] ?? '';
-    $customer->clientNumber = $data['clientNumber'] ?? '';
-    $customer->address = $data['address'] ?? '';
-    $customer->comments = $data['comments'] ?? '';
+    $customer->setCid($data['cid'] ?? 0);
+    $customer->setName($data['name'] ?? '');
+    $customer->setClientNumber($data['clientNumber'] ?? '');
+    $customer->setAddress($data['address'] ?? '');
+    $customer->setComments($data['comments'] ?? '');
 
     if ($validate)
       $customer->validate();

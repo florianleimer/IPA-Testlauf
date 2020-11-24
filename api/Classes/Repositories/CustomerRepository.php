@@ -31,7 +31,7 @@ class CustomerRepository implements BaseRepository
     if ($customer->getCid() > 0) {
       return $this->update($customer);
     } else {
-      return $this->save($customer);
+      return $this->insert($customer);
     }
   }
 
@@ -86,27 +86,21 @@ class CustomerRepository implements BaseRepository
   }
 
   /**
-   * @return array<Models\Customer>
+   * @return array
    */
   public function findAll()
   {
-    $results = [];
-
     $statement = $this->db->select('SELECT * FROM customer ORDER BY name');
-    while ($row = $statement->fetchObject(Models\Customer::class)) {
-      $results = $row;
-    }
-
-    return $results;
+    return $statement->fetchAll(\PDO::FETCH_ASSOC);
   }
 
   /**
    * @param int $id
-   * @return Models\Customer
+   * @return array
    */
   public function findByID(int $id)
   {
-    return $this->queryPrepared('SELECT * FROM customer WHERE cid = ? LIMIT 1', [$id])->fetchObject(Models\Customer::class);
+    return $this->db->selectPrepared('SELECT * FROM customer WHERE cid = ? LIMIT 1', [$id])->fetch(\PDO::FETCH_ASSOC);
   }
 
 }

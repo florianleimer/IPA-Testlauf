@@ -2,6 +2,7 @@
 namespace ProbeIPA\Classes;
 
 use Exception;
+use function Sodium\library_version_major;
 
 /**
  * @autor Florian Leimer
@@ -23,8 +24,10 @@ class Controller
   public static function dispatch($management, $method, $data)
   {
 
+    /*
     if ($management != 'login' && (!isset($data->token) || !Authentication::validateToken($data->token)))
       Rest::setHttpHeaders(403, true);
+    */
 
     switch ($management) {
       case 'customer':
@@ -53,11 +56,15 @@ class Controller
 
     switch ($method) {
       case 'POST':
-        $customer = Models\Customer::createFromArray($data->customer);
+        $customer = Models\Customer::createFromArray((array)$data->customer);
         $customerRepository->save($customer);
         break;
       case 'GET':
-        return $customerRepository->findAll();
+        if (isset($data->cid) && !empty($data->cid)) {
+          return $customerRepository->findByID($data->cid);
+        } else {
+          return $customerRepository->findAll();
+        }
       case 'DELETE':
         $customerRepository->delete($data->cid);
         break;
@@ -77,7 +84,7 @@ class Controller
 
     switch ($method) {
       case 'POST':
-        $project = Models\Project::createFromArray($data->ort);
+        $project = Models\Project::createFromArray((array)$data->ort);
         $projectRepository->save($project);
         break;
       case 'GET':
@@ -102,7 +109,7 @@ class Controller
 
     switch ($method) {
       case 'POST':
-        $report = Models\Report::createFromArray($data->report);
+        $report = Models\Report::createFromArray((array)$data->report);
         $reportRepository->save($report);
         break;
       case 'GET':
