@@ -10,12 +10,11 @@
       <div class="d-none">
         <input type="hidden" v-model="customer.cid"/>
       </div>
-      <base-input label="Name" placeholder="Name" v-model="customer.name"></base-input>
-      <base-input label="Kundennummer" placeholder="Kundennummer" v-model="customer.clientNumber"></base-input>
-      <base-input label="Adresse" placeholder="Adresse" v-model="customer.address"></base-input>
-      <base-input>
-        <label>Kommentare</label>
-        <textarea rows="4" class="form-control" placeholder="Kommentare zum Kunden..."
+      <base-input label="Name" placeholder="Name" v-model="customer.name" :has-error="errors.name"></base-input>
+      <base-input label="Kundennummer" placeholder="Kundennummer" v-model="customer.clientNumber" :has-error="errors.name"></base-input>
+      <base-input label="Adresse" placeholder="Adresse" v-model="customer.address" :has-error="errors.address"></base-input>
+      <base-input label="Kommentare">
+        <textarea rows="4" class="form-control" :class="{'is-invalid': errors.comments }" placeholder="Kommentare zum Kunden..."
                   v-model="customer.comments"></textarea>
       </base-input>
       <div class="text-right">
@@ -37,11 +36,11 @@ export default {
         address: '',
         comments: ''
       },
-      cssStyle: {
-        name: 'form-control',
-        clientNumber: 'form-control',
-        address: 'form-control',
-        comments: 'form-control'
+      errors: {
+        name: false,
+        clientNumber: false,
+        address: false,
+        comments: false
       },
     }
   },
@@ -55,7 +54,7 @@ export default {
         this.customer = {
           cid: response.data.cid,
           name: response.data.name,
-          clientNumber: response.data.client_number,
+          clientNumber: response.data.clientNumber,
           address: response.data.address,
           comments: response.data.comments,
         }
@@ -82,17 +81,9 @@ export default {
       }).catch(error => {
         switch (error.response.status) {
           case 420:
-            // input validation
-            for (let el in error.response.data) {
-              if (error.response.data[el]) {
-                this.cssStyle[el] = 'form-control';
-              } else {
-                this.cssStyle[el] = 'form-control is-invalid';
-              }
-            }
+            this.errors = error.response.data;
             break;
           default:
-            // eslint-disable-next-line no-console
             console.log(error);
         }
       });

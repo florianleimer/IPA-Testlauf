@@ -22,6 +22,7 @@
         v-bind="$attrs"
         v-on="listeners"
         class="form-control"
+        :class="{ 'is-invalid' : hasError }"
         aria-describedby="addon-right addon-left">
     </slot>
     <slot name="addonRight">
@@ -46,6 +47,10 @@
       value: {
         type: [String, Number],
         description: "Input value"
+      },
+      hasError: {
+        type: Boolean,
+        description: "Has Input error"
       },
       addonRightIcon: {
         type: String,

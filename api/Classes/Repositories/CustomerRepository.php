@@ -86,21 +86,28 @@ class CustomerRepository implements BaseRepository
   }
 
   /**
-   * @return array
+   * @return array<Models\Customer>
    */
   public function findAll()
   {
+    $results = [];
+
     $statement = $this->db->select('SELECT * FROM customer ORDER BY name');
-    return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\Customer::createFromArray($row, false);
+    }
+
+    return $results;
   }
 
   /**
    * @param int $id
-   * @return array
+   * @return Models\Customer
    */
   public function findByID(int $id)
   {
-    return $this->db->selectPrepared('SELECT * FROM customer WHERE cid = ? LIMIT 1', [$id])->fetch(\PDO::FETCH_ASSOC);
+    $statement = $this->db->selectPrepared('SELECT * FROM customer WHERE cid = ? LIMIT 1', [$id]);
+    return Models\Customer::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
   }
 
 }

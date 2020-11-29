@@ -130,59 +130,6 @@ class Util
   }
 
   /**
-   * Checks if value is number
-   *
-   * @param $value string value to check
-   * @return boolean returns if check was successful
-   */
-  public static function isNumber(string $value)
-  {
-    if (!is_numeric($value)) return false;
-    return true;
-  }
-
-  /**
-   * Checks if value is a number
-   *
-   * @param $value string value to check
-   * @return boolean returns if check was successful
-   */
-  public static function CheckNumber(string $value)
-  {
-    if (!self::isNumber($value)) return false;
-    else return true;
-  }
-
-  /**
-   * Checks if value is a positive number (without e,+,-).
-   *
-   * @param $value string value to check
-   * @return boolean returns if check was successful
-   */
-  public static function isCleanNumber(string $value)
-  {
-    if (!is_numeric($value)) return false;
-    $pattern_number = '/^[0-9]*$/';
-    if (preg_match($pattern_number, $value)) return true;
-    else return false;
-    return true;
-  }
-
-  /**
-   * Checks if value is a number and has a minimal length
-   *
-   * @param $value string value to check
-   * @param $minlength int minimal length of value
-   * @return boolean returns if check was successful
-   */
-  public static function CheckCleanNumberEmpty(string $value, $minlength = 0)
-  {
-    if (empty($value)) return true;
-    if (!self::isCleanNumber($value) || strlen($value) < $minlength) return false;
-    else return true;
-  }
-
-  /**
    * @param $value
    * @return int|bool returns integer or false on fail
    */

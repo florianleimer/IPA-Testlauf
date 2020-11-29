@@ -19,7 +19,7 @@
       </template>
       <template v-slot:default="{row}">
         <td>{{ row.name }}</td>
-        <td>{{ row.client_number }}</td>
+        <td>{{ row.clientNumber }}</td>
         <td>{{ row.address }}</td>
         <td>{{ row.comments }}</td>
         <td class="text-right">
@@ -43,12 +43,6 @@ export default {
   data() {
     return {
       tableData: [],
-      tableColumns: [
-        'Name',
-        'Kundennummer',
-        'Adresse',
-        'Kommentare'
-      ],
     }
   },
   mounted() {
@@ -56,7 +50,6 @@ export default {
       method: 'GET',
       url: '/api/customer/'
     }).then(response => {
-      console.log(response);
       this.tableData = response.data;
     }).catch(error => {
       console.log(error);
@@ -70,7 +63,7 @@ export default {
       }).then(() => {
         this.$notify({
           message: 'Kunde wurde erfolgreich gelöscht!',
-          icon: 'fas fa-save',
+          icon: 'fas fa-trash',
           type: 'success'
         });
         this.tableData = this.tableData.filter(temp => temp.cid !== cid);

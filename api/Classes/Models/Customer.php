@@ -9,7 +9,7 @@ use ProbeIPA\Classes\Util;
  * @autor Florian Leimer
  * @version 2020
  */
-class Customer
+class Customer implements \JsonSerializable
 {
 
   /**
@@ -37,6 +37,57 @@ class Customer
    */
   protected $comments = '';
 
+  /**
+   * creates a customer from an array
+   * @param array $data
+   * @param bool $validate should the input be validated or not
+   * @return Customer
+   */
+  public static function createFromArray(array $data, $validate = true)
+  {
+    $customer = new Customer();
+
+    $customer->setCid($data['cid'] ?? 0);
+    $customer->setName($data['name'] ?? '');
+    $customer->setClientNumber($data['clientNumber'] ?? $data['client_number'] ?? '');
+    $customer->setAddress($data['address'] ?? '');
+    $customer->setComments($data['comments'] ?? '');
+
+    if ($validate)
+      $customer->validate();
+
+    return $customer;
+  }
+
+  /**
+   * Function for validation of the input for a customer
+   */
+  private function validate()
+  {
+    // TODO: Validation
+
+    $status = true;
+    $hasError = [
+      'name' => false,
+      'clientNumber' => false,
+      'address' => false,
+      'comments' => false,
+    ];
+
+    if (!Util::CheckName($this->name)) {
+      $hasError['name'] = true;
+      $status = false;
+    }
+    if (!Util::CheckEmpty($this->clientNumber)) {
+      $hasError['clientNumber'] = true;
+      $status = false;
+    }
+
+    if (!$status) {
+      echo Rest::encodeJson($hasError);
+      Rest::setHttpHeaders(420, true);
+    }
+  }
 
   /**
    * @return int
@@ -47,7 +98,7 @@ class Customer
   }
 
   /**
-   * @param mixed $cid
+   * @param int|string $cid
    */
   public function setCid($cid): void
   {
@@ -119,53 +170,14 @@ class Customer
     $this->comments = $comments;
   }
 
-
-  /**
-   * creates a customer from an array
-   * @param array $data
-   * @param bool $validate should the input be validated or not
-   * @return Customer
-   */
-  public static function createFromArray(array $data, $validate = true)
+  public function jsonSerialize()
   {
-    $customer = new Customer();
-
-    $customer->setCid($data['cid'] ?? 0);
-    $customer->setName($data['name'] ?? '');
-    $customer->setClientNumber($data['clientNumber'] ?? '');
-    $customer->setAddress($data['address'] ?? '');
-    $customer->setComments($data['comments'] ?? '');
-
-    if ($validate)
-      $customer->validate();
-
-    return $customer;
-  }
-
-  /**
-   * Function for validation of the input for a customer
-   */
-  private function validate()
-  {
-    // TODO: Validation
-
-    $status = true;
-    $validation = [
-      'name' => true,
-      'clientNumber' => true,
-      'address' => true,
-      'comments' => true,
+    return [
+      'cid' => $this->getCid(),
+      'name' => $this->getName(),
+      'clientNumber' => $this->getClientNumber(),
+      'address' => $this->getAddress(),
+      'comments' => $this->getComments(),
     ];
-
-    if (!Util::CheckName($this->name)) {
-      $validation['name'] = false;
-      $status = false;
-    }
-
-    if (!$status) {
-      echo Rest::encodeJson($validation);
-      Rest::setHttpHeaders(420, true);
-    }
   }
-
 }
