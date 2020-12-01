@@ -11,7 +11,7 @@
         <input type="hidden" v-model="customer.cid"/>
       </div>
       <base-input label="Name" placeholder="Name" v-model="customer.name" :has-error="errors.name"></base-input>
-      <base-input label="Kundennummer" placeholder="Kundennummer" v-model="customer.clientNumber" :has-error="errors.name"></base-input>
+      <base-input label="Kundennummer" placeholder="Kundennummer" v-model="customer.clientNumber" :has-error="errors.clientNumber"></base-input>
       <base-input label="Adresse" placeholder="Adresse" v-model="customer.address" :has-error="errors.address"></base-input>
       <base-input label="Kommentare">
         <textarea rows="4" class="form-control" :class="{'is-invalid': errors.comments }" placeholder="Kommentare zum Kunden..."

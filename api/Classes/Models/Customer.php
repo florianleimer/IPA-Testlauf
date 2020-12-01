@@ -45,6 +45,9 @@ class Customer implements \JsonSerializable
    */
   public static function createFromArray(array $data, $validate = true)
   {
+    if ($validate)
+      self::validate($data);
+
     $customer = new Customer();
 
     $customer->setCid($data['cid'] ?? 0);
@@ -53,19 +56,15 @@ class Customer implements \JsonSerializable
     $customer->setAddress($data['address'] ?? '');
     $customer->setComments($data['comments'] ?? '');
 
-    if ($validate)
-      $customer->validate();
-
     return $customer;
   }
 
   /**
    * Function for validation of the input for a customer
+   * @param array $data
    */
-  private function validate()
+  private static function validate(array $data)
   {
-    // TODO: Validation
-
     $status = true;
     $hasError = [
       'name' => false,
@@ -74,12 +73,16 @@ class Customer implements \JsonSerializable
       'comments' => false,
     ];
 
-    if (!Util::CheckName($this->name)) {
+    if (!Util::CheckName($data['name'])) {
       $hasError['name'] = true;
       $status = false;
     }
-    if (!Util::CheckEmpty($this->clientNumber)) {
+    if (!Util::CheckEmpty($data['clientNumber'] ?? $data['client_number'])) {
       $hasError['clientNumber'] = true;
+      $status = false;
+    }
+    if (!Util::CheckEmpty($data['address'])) {
+      $hasError['address'] = true;
       $status = false;
     }
 

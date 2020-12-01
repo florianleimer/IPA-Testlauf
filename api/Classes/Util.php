@@ -88,7 +88,7 @@ class Util
    * Checks if value is a phone number
    *
    * @param $value string value to check
-   * @param bool $empty string tells if the value can be empty ('Y') or not ('N')
+   * @param bool $empty string tells if the value can be empty
    * @return boolean returns if check was successful
    */
   public static function CheckPhone(string $value, $empty = false)
@@ -100,10 +100,40 @@ class Util
   }
 
   /**
+   * Checks if value is a time
+   *
+   * @param $value string value to check
+   * @param bool $empty string tells if the value can be empty
+   * @return boolean returns if check was successful
+   */
+  public static function CheckTime(string $value, $empty = false)
+  {
+    $pattern_time = '/^[0-9]{1,2}\:[0-9]{1,2}$/'; // 00:00
+    if ($empty && empty($value)) return true;
+    if (preg_match($pattern_time, $value)) return true;
+    else return false;
+  }
+
+  /**
+   * Checks if value is a date
+   *
+   * @param $value string value to check
+   * @param bool $empty string tells if the value can be empty
+   * @return boolean returns if check was successful
+   */
+  public static function CheckDate(string $value, $empty = false)
+  {
+    $pattern_date = '/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/'; // 2000-01-01
+    if ($empty && empty($value)) return true;
+    if (preg_match($pattern_date, $value)) return true;
+    else return false;
+  }
+
+  /**
    * Checks if value is a valid username
    *
    * @param $value string value to check
-   * @param bool $empty string tells if the value can be empty ('Y') or not ('N')
+   * @param bool $empty string tells if the value can be empty
    * @return boolean returns if check was successful
    */
   public static function CheckUsername(string $value, $empty = false)
@@ -118,7 +148,7 @@ class Util
    * Checks if value is a valid password
    *
    * @param $value string value to check
-   * @param bool $empty string tells if the value can be empty ('Y') or not ('N')
+   * @param bool $empty string tells if the value can be empty
    * @return boolean returns if check was successful
    */
   public static function CheckPassword(string $value, $empty = false)
@@ -127,6 +157,34 @@ class Util
     if ($empty && empty($value)) return true;
     if (preg_match($pattern_password, $value)) return true;
     else return false;
+  }
+
+  /**
+   * Checks if value is a possible ID
+   *
+   * @param string $value value to check
+   * @param bool $empty string tells if the value can be empty
+   * @return boolean returns if check was successful
+   */
+  public static function CheckID(string $value, $empty = false)
+  {
+    if ($empty && empty($value)) return true;
+    if (($int = filter_var($value, FILTER_VALIDATE_INT)) === false) return false;
+    if ($empty || $int > 0) return true;
+    else return false;
+  }
+
+  /**
+   * Checks if value is a Integer
+   *
+   * @param string $value value to check
+   * @param bool $empty string tells if the value can be empty
+   * @return boolean returns if check was successful
+   */
+  public static function CheckInteger(string $value, $empty = false)
+  {
+    if ($empty && empty($value)) return true;
+    return (filter_var($value, FILTER_VALIDATE_INT) !== false);
   }
 
   /**
