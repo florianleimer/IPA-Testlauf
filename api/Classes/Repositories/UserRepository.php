@@ -31,31 +31,8 @@ class UserRepository implements BaseRepository
     if ($user->getUid() > 0) {
       return $this->update($user);
     } else {
-      return $this->save($user);
+      return $this->insert($user);
     }
-  }
-
-  /**
-   * @param $user Models\User
-   * @return Models\User
-   */
-  public function insert($user)
-  {
-    $data = [
-      $user->getName(),
-      $user->getInitials(),
-      $user->getPassword(),
-      $user->isActive(),
-      $user->getStatus(),
-    ];
-
-    $insertedId = $this->db->queryPrepared('
-                INSERT INTO user (name, initials, password, active, status)
-                VALUES (?, ?, ?, ?, ?)
-            ', $data);
-    $user->setUid($insertedId);
-
-    return $user;
   }
 
   /**
@@ -82,6 +59,29 @@ class UserRepository implements BaseRepository
     return $user;
   }
 
+  /**
+   * @param $user Models\User
+   * @return Models\User
+   */
+  public function insert($user)
+  {
+    $data = [
+      $user->getName(),
+      $user->getInitials(),
+      $user->getPassword(),
+      $user->isActive(),
+      $user->getStatus(),
+    ];
+
+    $insertedId = $this->db->queryPrepared('
+                INSERT INTO user (name, initials, password, active, status)
+                VALUES (?, ?, ?, ?, ?)
+            ', $data);
+    $user->setUid($insertedId);
+
+    return $user;
+  }
+
   public function delete(int $id)
   {
     $this->db->queryPrepared('DELETE FROM user WHERE uid = ?', [$id]);
@@ -95,8 +95,8 @@ class UserRepository implements BaseRepository
     $results = [];
 
     $statement = $this->db->select('SELECT * FROM user ORDER BY name');
-    while ($row = $statement->fetchObject(Models\User::class)) {
-      $results = $row;
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\User::createFromArray($row);
     }
 
     return $results;
@@ -108,7 +108,8 @@ class UserRepository implements BaseRepository
    */
   public function findByID(int $id)
   {
-    return $this->queryPrepared('SELECT * FROM user WHERE uid = ? LIMIT 1', [$id])->fetchObject(Models\User::class);
+    $statement = $this->db->selectPrepared('SELECT * FROM user WHERE uid = ? LIMIT 1', [$id]);
+    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
   }
 
   /**
@@ -117,7 +118,8 @@ class UserRepository implements BaseRepository
    */
   public function findByUsername(string $username)
   {
-    return $this->queryPrepared('SELECT * FROM user WHERE initials = ? LIMIT 1', [$username])->fetchObject(Models\User::class);
+    $statement = $this->db->selectPrepared('SELECT * FROM user WHERE initials = ? LIMIT 1', [$username]);
+    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
   }
 
 }

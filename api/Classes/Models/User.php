@@ -9,7 +9,7 @@ use ProbeIPA\Classes\Util;
  * @autor Florian Leimer
  * @version 2020
  */
-class User
+class User implements \JsonSerializable
 {
 
   /**
@@ -42,6 +42,55 @@ class User
    */
   protected $status = '';
 
+  /**
+   * creates a user from an array
+   * @param array $data
+   * @param bool $validate should the input be validated or not
+   * @return User
+   */
+  public static function createFromArray(array $data, $validate = true)
+  {
+    $user = new User();
+
+    $user->setUid($data['uid'] ?? 0);
+    $user->setName($data['name'] ?? '');
+    $user->setInitials($data['initials'] ?? '');
+    $user->setPassword($data['password'] ?? '');
+    $user->setActive($data['active'] ?? false);
+    $user->setStatus($data['status'] ?? '');
+
+    if ($validate)
+      $user->validate();
+
+    return $user;
+  }
+
+  /**
+   * Function for validation of the input for a user
+   */
+  private function validate()
+  {
+    // TODO: Validation
+
+    $status = true;
+    $hasError = [
+      'name' => false,
+      'initials' => false,
+      'password' => false,
+      'active' => false,
+      'status' => false,
+    ];
+
+    if (!Util::CheckName($this->name)) {
+      $hasError['name'] = true;
+      $status = false;
+    }
+
+    if (!$status) {
+      echo Rest::encodeJson($hasError);
+      Rest::setHttpHeaders(420, true);
+    }
+  }
 
   /**
    * @return int
@@ -52,11 +101,12 @@ class User
   }
 
   /**
-   * @param int $uid
+   * @param int|string $uid
    */
-  public function setUid(int $uid): void
+  public function setUid($uid): void
   {
-    $this->uid = $uid;
+    $uid = Util::filterInteger($uid);
+    if ($uid) $this->uid = $uid;
   }
 
   /**
@@ -116,11 +166,11 @@ class User
   }
 
   /**
-   * @param bool $active
+   * @param mixed $active
    */
-  public function setActive(bool $active): void
+  public function setActive($active): void
   {
-    $this->active = $active;
+    $this->active = boolval($active);
   }
 
   /**
@@ -139,49 +189,15 @@ class User
     $this->status = $status;
   }
 
-
-  /**
-   * creates a user from an array
-   * @param array $data
-   * @param bool $validate should the input be validated or not
-   * @return User
-   */
-  public static function createFromArray(array $data, $validate = true)
+  public function jsonSerialize()
   {
-    $user = new User();
-
-    $user->uid = $data['uid'] ?? 0;
-    $user->name = $data['name'] ?? '';
-    $user->initials = $data['initials'] ?? '';
-    $user->password = $data['password'] ?? '';
-    $user->active = $data['active'] ?? false;
-    $user->status = $data['status'] ?? '';
-
-    if ($validate)
-      $user->validate();
-
-    return $user;
+    return [
+      'uid' => $this->getUid(),
+      'name' => $this->getName(),
+      'initials' => $this->getInitials(),
+      //'password' => $this->getPassword(),
+      'active' => $this->isActive(),
+      'status' => $this->getStatus(),
+    ];
   }
-
-  /**
-   * Function for validation of the input for a user
-   */
-  private function validate()
-  {
-    // TODO: Validation
-
-    $status = true;
-    $inputfields = ['land' => true];
-
-    if (!Util::CheckName($this->land)) {
-      $inputfields['land'] = false;
-      $status = false;
-    }
-
-    if (!$status) {
-      echo Rest::encodeJson($inputfields);
-      Rest::setHttpHeaders(420, true);
-    }
-  }
-
 }

@@ -2,7 +2,7 @@
 
 namespace ProbeIPA\Classes\Models;
 
-use DateTime;
+use ProbeIPA\Classes\Repositories;
 use ProbeIPA\Classes\Rest;
 use ProbeIPA\Classes\Util;
 
@@ -10,10 +10,10 @@ use ProbeIPA\Classes\Util;
  * @autor Florian Leimer
  * @version 2020
  */
-class Project
+class Project implements \JsonSerializable
 {
 
-  const STATUS_CONVERSION = 'conversion';
+  const STATUS_OPEN = 'open';
   const STATUS_COMPLETED = 'completed';
   const STATUS_SUPPORT = 'support';
 
@@ -33,7 +33,7 @@ class Project
   protected $customer = null;
 
   /**
-   * @var DateTime
+   * @var \DateTime
    */
   protected $startDate = null;
 
@@ -57,6 +57,59 @@ class Project
    */
   protected $comments = '';
 
+  /**
+   * creates a project from an array
+   * @param array $data
+   * @param bool $validate should the input be validated or not
+   * @return Project
+   */
+  public static function createFromArray(array $data, $validate = true)
+  {
+    $project = new Project();
+
+    $project->setPid($data['pid'] ?? 0);
+    $project->setName($data['name'] ?? '');
+    $project->setCustomer($data['customer'] ?? null);
+    $project->setStartDate($data['startDate'] ?? $data['start_date'] ?? null);
+    $project->setStatus($data['status'] ?? '');
+    $project->setVolume($data['volume'] ?? 0);
+    $project->setProjectManager($data['projectManager'] ?? $data['project_manager'] ?? null);
+    $project->setComments($data['comments'] ?? '');
+
+    if ($validate)
+      $project->validate();
+
+    return $project;
+  }
+
+  /**
+   * Function for validation of the input for a project
+   */
+  private function validate()
+  {
+    // TODO: Validation
+
+    $status = true;
+    $hasError = [
+      'name' => false,
+      'customer' => false,
+      'startDate' => false,
+      'status' => false,
+      'volume' => false,
+      'projectManager' => false,
+      'comments' => false,
+    ];
+
+    if (!Util::CheckName($this->name)) {
+      $hasError['name'] = true;
+      $status = false;
+    }
+
+    if (!$status) {
+      echo Rest::encodeJson($hasError);
+      Rest::setHttpHeaders(420, true);
+    }
+  }
 
   /**
    * @return int
@@ -67,11 +120,12 @@ class Project
   }
 
   /**
-   * @param int $pid
+   * @param int|string $pid
    */
-  public function setPid(int $pid): void
+  public function setPid($pid): void
   {
-    $this->pid = $pid;
+    $pid = Util::filterInteger($pid);
+    if ($pid) $this->pid = $pid;
   }
 
   /**
@@ -91,35 +145,46 @@ class Project
   }
 
   /**
-   * @return Customer
+   * @return Customer|null
    */
-  public function getCustomer(): Customer
+  public function getCustomer()
   {
     return $this->customer;
   }
 
   /**
-   * @param Customer $customer
+   * @param Customer|int|string $customer
    */
-  public function setCustomer(Customer $customer): void
+  public function setCustomer($customer): void
   {
-    $this->customer = $customer;
+    if ($customer instanceof Customer) {
+      $this->customer = $customer;
+    } elseif ($id = Util::filterInteger($customer)) {
+      $customerRepository = new Repositories\CustomerRepository();
+      $this->customer = $customerRepository->findByID($id);
+    }
   }
 
   /**
-   * @return DateTime
+   * @return \DateTime|null
    */
-  public function getStartDate(): DateTime
+  public function getStartDate()
   {
     return $this->startDate;
   }
 
   /**
-   * @param DateTime $startDate
+   * @param \DateTime|int|string $startDate
    */
-  public function setStartDate(DateTime $startDate): void
+  public function setStartDate($startDate): void
   {
-    $this->startDate = $startDate;
+    if ($startDate instanceof \DateTime) {
+      $this->startDate = $startDate;
+    } elseif ($time = Util::filterInteger($startDate)) {
+      $this->startDate = \DateTime::createFromFormat('U', $time);
+    } elseif ($startDate = \DateTime::createFromFormat('Y-m-d', $startDate)) {
+      $this->startDate = $startDate;
+    }
   }
 
   /**
@@ -147,27 +212,33 @@ class Project
   }
 
   /**
-   * @param int $volume
+   * @param int|string $volume
    */
-  public function setVolume(int $volume): void
+  public function setVolume($volume): void
   {
-    $this->volume = $volume;
+    $volume = Util::filterInteger($volume);
+    if ($volume) $this->volume = $volume;
   }
 
   /**
-   * @return User
+   * @return User|null
    */
-  public function getProjectManager(): User
+  public function getProjectManager()
   {
     return $this->projectManager;
   }
 
   /**
-   * @param User $projectManager
+   * @param User|int|string $projectManager
    */
-  public function setProjectManager(User $projectManager): void
+  public function setProjectManager($projectManager): void
   {
-    $this->projectManager = $projectManager;
+    if ($projectManager instanceof User) {
+      $this->projectManager = $projectManager;
+    } elseif ($id = Util::filterInteger($projectManager)) {
+      $userRepository = new Repositories\UserRepository();
+      $this->projectManager = $userRepository->findByID($id);
+    }
   }
 
   /**
@@ -186,50 +257,17 @@ class Project
     $this->comments = $comments;
   }
 
-
-  /**
-   * creates a project from an array
-   * @param array $data
-   * @param bool $validate should the input be validated or not
-   */
-  public static function createFromArray(array $data, $validate = true)
+  public function jsonSerialize()
   {
-    $project = new Project();
-
-    $project->pid = $data['pid'] ?? 0;
-    $project->name = $data['name'] ?? '';
-    $project->customer = $data['customer'] ?? null;
-    $project->startDate = $data['startDate'] ?? null;
-    $project->status = $data['status'] ?? '';
-    $project->volume = $data['volume'] ?? 0;
-    $project->projectManager = $data['projectManager'] ?? null;
-    $project->comments = $data['comments'] ?? '';
-
-    if ($validate)
-      $project->validate();
-
-    return $project;
+    return [
+      'pid' => $this->getPid(),
+      'name' => $this->getName(),
+      'customer' => $this->getCustomer(),
+      'startDate' => (!is_null($this->getStartDate())) ? $this->getStartDate()->format('Y-m-d') : null,
+      'status' => $this->getStatus(),
+      'volume' => $this->getVolume(),
+      'projectManager' => $this->getProjectManager(),
+      'comments' => $this->getComments(),
+    ];
   }
-
-  /**
-   * Function for validation of the input for a project
-   */
-  private function validate()
-  {
-    // TODO: Validation
-
-    $status = true;
-    $inputfields = ['land' => true];
-
-    if (!Util::CheckName($this->land)) {
-      $inputfields['land'] = false;
-      $status = false;
-    }
-
-    if (!$status) {
-      echo Rest::encodeJson($inputfields);
-      Rest::setHttpHeaders(420, true);
-    }
-  }
-
 }

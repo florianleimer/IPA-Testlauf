@@ -5,7 +5,9 @@ import Users from "@/pages/Users.vue";
 import CustomerLayout from "@/pages/CustomerLayout.vue";
 import CustomerOverview from "@/pages/Customer/Overview.vue";
 import CustomerEdit from "@/pages/Customer/Edit.vue";
-import Projects from "@/pages/Projects.vue";
+import ProjectLayout from "@/pages/ProjectLayout.vue";
+import ProjectOverview from "@/pages/Project/Overview.vue";
+import ProjectEdit from "@/pages/Project/Edit.vue";
 import Reports from "@/pages/Reports.vue";
 import NotFound from "@/pages/NotFoundPage.vue";
 
@@ -43,8 +45,24 @@ const routes = [
       },
       {
         path: "projects",
-        name: "Projekte",
-        component: Projects
+        component: ProjectLayout,
+        children: [
+          {
+            path: "",
+            name: "Projekte-Übersicht",
+            component: ProjectOverview
+          },
+          {
+            path: "create",
+            name: "Projekt erstellen",
+            component: ProjectEdit
+          },
+          {
+            path: "edit/:id",
+            name: "Projekt bearbeiten",
+            component: ProjectEdit
+          },
+        ]
       },
       {
         path: "reports",

@@ -31,33 +31,8 @@ class ProjectRepository implements BaseRepository
     if ($project->getPid() > 0) {
       return $this->update($project);
     } else {
-      return $this->save($project);
+      return $this->insert($project);
     }
-  }
-
-  /**
-   * @param $project Models\Project
-   * @return Models\Project
-   */
-  public function insert($project)
-  {
-    $data = [
-      $project->getName(),
-      $project->getCustomer()->getCid(),
-      $project->getStartDate()->getTimestamp(),
-      $project->getStatus(),
-      $project->getVolume(),
-      $project->getProjectManager()->getUid(),
-      $project->getComments(),
-    ];
-
-    $insertedId = $this->db->queryPrepared('
-                INSERT INTO project (name, customer, start_date, status, volume, project_manager, comments)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ', $data);
-    $project->setPid($insertedId);
-
-    return $project;
   }
 
   /**
@@ -68,11 +43,11 @@ class ProjectRepository implements BaseRepository
   {
     $data = [
       $project->getName(),
-      $project->getCustomer()->getCid(),
-      $project->getStartDate()->getTimestamp(),
+      (!is_null($project->getCustomer())) ? $project->getCustomer()->getCid() : 0,
+      (!is_null($project->getStartDate())) ? $project->getStartDate()->getTimestamp() : 0,
       $project->getStatus(),
       $project->getVolume(),
-      $project->getProjectManager()->getUid(),
+      (!is_null($project->getProjectManager())) ? $project->getProjectManager()->getUid() : 0,
       $project->getComments(),
       $project->getPid(),
     ];
@@ -82,6 +57,31 @@ class ProjectRepository implements BaseRepository
                 SET name = ?, customer = ?, start_date = ?, status = ?, volume = ?, project_manager = ?, comments = ?
                 WHERE pid = ?
             ', $data);
+
+    return $project;
+  }
+
+  /**
+   * @param $project Models\Project
+   * @return Models\Project
+   */
+  public function insert($project)
+  {
+    $data = [
+      $project->getName(),
+      (!is_null($project->getCustomer())) ? $project->getCustomer()->getCid() : 0,
+      (!is_null($project->getStartDate())) ? $project->getStartDate()->getTimestamp() : 0,
+      $project->getStatus(),
+      $project->getVolume(),
+      (!is_null($project->getProjectManager())) ? $project->getProjectManager()->getUid() : 0,
+      $project->getComments(),
+    ];
+
+    $insertedId = $this->db->queryPrepared('
+                INSERT INTO project (name, customer, start_date, status, volume, project_manager, comments)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ', $data);
+    $project->setPid($insertedId);
 
     return $project;
   }
@@ -99,8 +99,8 @@ class ProjectRepository implements BaseRepository
     $results = [];
 
     $statement = $this->db->select('SELECT * FROM project ORDER BY name');
-    while ($row = $statement->fetchObject(Models\Project::class)) {
-      $results = $row;
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\Project::createFromArray($row);
     }
 
     return $results;
@@ -112,7 +112,8 @@ class ProjectRepository implements BaseRepository
    */
   public function findByID(int $id)
   {
-    return $this->queryPrepared('SELECT * FROM project WHERE pid = ? LIMIT 1', [$id])->fetchObject(Models\Project::class);
+    $statement = $this->db->selectPrepared('SELECT * FROM project WHERE pid = ? LIMIT 1', [$id]);
+    return Models\Project::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
   }
 
 }

@@ -131,3 +131,10 @@
     color: $danger-states;
   }
 }
+
+select.form-control {
+  option {
+    color: $input-color;
+    background: $card-black-background;
+  }
+}
