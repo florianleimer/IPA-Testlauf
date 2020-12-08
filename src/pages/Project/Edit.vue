@@ -10,31 +10,31 @@
       <div class="d-none">
         <input type="hidden" v-model="project.pid"/>
       </div>
-      <base-input label="Name" placeholder="Name" v-model="project.name"></base-input>
+      <base-input label="Name" placeholder="Name" v-model="project.name" :has-error="errors.name"></base-input>
       <base-input label="Kunde">
-        <select class="form-control" v-model="project.customer">
+        <select class="form-control" :class="{ 'is-invalid' : errors.customer }" v-model="project.customer">
           <option value="0"></option>
           <option v-for="customer in customersData" :value="customer.cid">{{ customer.name }}</option>
         </select>
       </base-input>
-      <base-input label="Startdatum" type="date" v-model="project.startDate"></base-input>
+      <base-input label="Startdatum" type="date" v-model="project.startDate" :has-error="errors.startDate"></base-input>
       <base-input label="Projektstatus">
-        <select class="form-control" v-model="project.status">
+        <select class="form-control" :class="{ 'is-invalid' : errors.status }" v-model="project.status">
           <option value=""></option>
           <option value="open">Offen</option>
           <option value="completed">Erledigt</option>
           <option value="support">Support</option>
         </select>
       </base-input>
-      <base-input label="Projektvolumen" placeholder="z.B. CHF 1'000.-" type="number" v-model="project.volume"></base-input>
+      <base-input label="Projektvolumen" placeholder="z.B. CHF 1'000.-" type="number" v-model="project.volume" :has-error="errors.volume"></base-input>
       <base-input label="Projektmanager">
-        <select class="form-control" v-model="project.projectManager">
+        <select class="form-control" :class="{ 'is-invalid' : errors.projectManager }" v-model="project.projectManager">
           <option value="0"></option>
           <option v-for="user in usersData" :value="user.uid">{{ user.name }}</option>
         </select>
       </base-input>
       <base-input label="Kommentare">
-        <textarea rows="4" class="form-control" placeholder="Kommentare zum Projekt..."
+        <textarea rows="4" class="form-control" :class="{ 'is-invalid' : errors.comments }" placeholder="Kommentare zum Projekt..."
                   v-model="project.comments"></textarea>
       </base-input>
       <div class="text-right">

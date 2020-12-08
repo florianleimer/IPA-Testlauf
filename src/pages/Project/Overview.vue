@@ -12,10 +12,10 @@
     <base-table :data="tableData">
       <template slot="columns">
         <th width="16%">Name</th>
-        <th width="18%">Kunde</th>
+        <th width="17%">Kunde</th>
         <th width="12%">Startdatum</th>
-        <th width="12%">Status</th>
-        <th width="12%">Volumen</th>
+        <th width="11%">Status</th>
+        <th width="14%">Volumen</th>
         <th width="18%">Projektmanager</th>
         <th width="12%"></th>
       </template>
@@ -24,7 +24,7 @@
         <td>{{ getObjectProperty(row.customer, 'name') }}</td>
         <td>{{ formatDate(row.startDate) }}</td>
         <td>{{ row.status }}</td>
-        <td>{{ row.volume }}</td>
+        <td>{{ formatCurrency(row.volume) }}</td>
         <td>{{ getObjectProperty(row.projectManager, 'name') }}</td>
         <td class="text-right">
           <router-link class="btn btn-primary btn-link" :to="'/projects/edit/'+row.pid">
@@ -65,8 +65,11 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString();
     },
+    formatCurrency(number) {
+      return (number > 0) ? new Intl.NumberFormat('de-CH', { style: 'currency', currency: 'CHF' }).format(number) : '';
+    },
     getObjectProperty(object, property) {
-      if (object) return object[property];
+      return (object) ? object[property] : '';
     },
     deletion(pid) {
       this.axios({

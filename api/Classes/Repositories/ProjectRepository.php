@@ -100,7 +100,7 @@ class ProjectRepository implements BaseRepository
 
     $statement = $this->db->select('SELECT * FROM project ORDER BY name');
     while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-      $results[] = Models\Project::createFromArray($row);
+      $results[] = Models\Project::createFromArray($row, false);
     }
 
     return $results;
@@ -113,7 +113,7 @@ class ProjectRepository implements BaseRepository
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM project WHERE pid = ? LIMIT 1', [$id]);
-    return Models\Project::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
+    return Models\Project::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
   }
 
 }

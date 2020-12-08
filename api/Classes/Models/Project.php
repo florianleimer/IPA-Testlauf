@@ -65,6 +65,9 @@ class Project implements \JsonSerializable
    */
   public static function createFromArray(array $data, $validate = true)
   {
+    if ($validate)
+      self::validate($data);
+
     $project = new Project();
 
     $project->setPid($data['pid'] ?? 0);
@@ -76,19 +79,15 @@ class Project implements \JsonSerializable
     $project->setProjectManager($data['projectManager'] ?? $data['project_manager'] ?? null);
     $project->setComments($data['comments'] ?? '');
 
-    if ($validate)
-      $project->validate();
-
     return $project;
   }
 
   /**
    * Function for validation of the input for a project
+   * @param array $data
    */
-  private function validate()
+  private static function validate(array $data)
   {
-    // TODO: Validation
-
     $status = true;
     $hasError = [
       'name' => false,
@@ -100,8 +99,28 @@ class Project implements \JsonSerializable
       'comments' => false,
     ];
 
-    if (!Util::CheckName($this->name)) {
+    if (!Util::CheckName($data['name'])) {
       $hasError['name'] = true;
+      $status = false;
+    }
+    if (!Util::CheckID($data['customer'])) {
+      $hasError['customer'] = true;
+      $status = false;
+    }
+    if (!Util::CheckDate($data['startDate'] ?? $data['start_date'])) {
+      $hasError['startDate'] = true;
+      $status = false;
+    }
+    if (!Util::CheckInArray($data['status'], [self::STATUS_OPEN, self::STATUS_COMPLETED, self::STATUS_SUPPORT])) {
+      $hasError['status'] = true;
+      $status = false;
+    }
+    if (!Util::CheckInteger($data['volume'], true)) {
+      $hasError['volume'] = true;
+      $status = false;
+    }
+    if (!Util::CheckID($data['projectManager'] ?? $data['project_manager'], true)) {
+      $hasError['projectManager'] = true;
       $status = false;
     }
 
