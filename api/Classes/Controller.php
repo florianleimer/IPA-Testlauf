@@ -119,7 +119,11 @@ class Controller
         $reportRepository->save($report);
         break;
       case 'GET':
-        return $reportRepository->findAll();
+        if (isset($data->rid) && !empty($data->rid)) {
+          return $reportRepository->findByID($data->rid);
+        } else {
+          return $reportRepository->findAll();
+        }
       case 'DELETE':
         $reportRepository->delete($data->rid);
         break;

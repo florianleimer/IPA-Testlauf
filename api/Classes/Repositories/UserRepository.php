@@ -96,7 +96,7 @@ class UserRepository implements BaseRepository
 
     $statement = $this->db->select('SELECT * FROM user ORDER BY name');
     while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-      $results[] = Models\User::createFromArray($row);
+      $results[] = Models\User::createFromArray($row, false);
     }
 
     return $results;
@@ -109,7 +109,7 @@ class UserRepository implements BaseRepository
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM user WHERE uid = ? LIMIT 1', [$id]);
-    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
+    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
   }
 
   /**
@@ -119,7 +119,7 @@ class UserRepository implements BaseRepository
   public function findByUsername(string $username)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM user WHERE initials = ? LIMIT 1', [$username]);
-    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC));
+    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
   }
 
 }

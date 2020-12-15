@@ -160,6 +160,20 @@ class Util
   }
 
   /**
+   * Checks if value is included in Array
+   *
+   * @param string $value value to check
+   * @param array $array array to search in
+   * @param bool $empty string tells if the value can be empty
+   * @return boolean returns if check was successful
+   */
+  public static function CheckInArray(string $value, array $array, $empty = false)
+  {
+    if ($empty && empty($value)) return true;
+    return in_array($value, $array);
+  }
+
+  /**
    * Checks if value is a possible ID
    *
    * @param string $value value to check

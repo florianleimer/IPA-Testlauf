@@ -2,7 +2,7 @@
 
 namespace ProbeIPA\Classes\Models;
 
-use DateTime;
+use ProbeIPA\Classes\Repositories;
 use ProbeIPA\Classes\Rest;
 use ProbeIPA\Classes\Util;
 
@@ -10,7 +10,7 @@ use ProbeIPA\Classes\Util;
  * @autor Florian Leimer
  * @version 2020
  */
-class Report
+class Report implements \JsonSerializable
 {
 
   /**
@@ -19,7 +19,7 @@ class Report
   protected $rid = 0;
 
   /**
-   * @var DateTime
+   * @var \DateTime
    */
   protected $date = null;
 
@@ -43,6 +43,66 @@ class Report
    */
   protected $creator = null;
 
+  /**
+   * creates a report from an array
+   * @param array $data
+   * @param bool $validate should the input be validated or not
+   * @return Report
+   */
+  public static function createFromArray(array $data, $validate = true)
+  {
+    if ($validate)
+      self::validate($data);
+
+    $report = new Report();
+
+    $report->setRid($data['rid'] ?? 0);
+    $report->setDate($data['date'] ?? null);
+    $report->setProject($data['project'] ?? null);
+    $report->setTime($data['time'] ?? 0);
+    $report->setDescription($data['description'] ?? '');
+    $report->setCreator($data['creator'] ?? null); // TODO: set to logged in user
+
+    return $report;
+  }
+
+  /**
+   * Function for validation of the input for a report
+   * @param array $data
+   */
+  private static function validate(array $data)
+  {
+    $status = true;
+    $hasError = [
+      'date' => false,
+      'project' => false,
+      'time' => false,
+      'description' => false,
+      'creator' => false,
+    ];
+
+    if (!Util::CheckDate($data['date'])) {
+      $hasError['date'] = true;
+      $status = false;
+    }
+    if (!Util::CheckID($data['project'])) {
+      $hasError['project'] = true;
+      $status = false;
+    }
+    if (!Util::CheckTime($data['time'])) {
+      $hasError['time'] = true;
+      $status = false;
+    }
+    if (!Util::CheckEmpty($data['description'], 20)) {
+      $hasError['description'] = true;
+      $status = false;
+    }
+
+    if (!$status) {
+      echo Rest::encodeJson($hasError);
+      Rest::setHttpHeaders(420, true);
+    }
+  }
 
   /**
    * @return int
@@ -53,43 +113,55 @@ class Report
   }
 
   /**
-   * @param int $rid
+   * @param int|string $rid
    */
-  public function setRid(int $rid): void
+  public function setRid($rid): void
   {
-    $this->rid = $rid;
+    $rid = Util::filterInteger($rid);
+    if ($rid) $this->rid = $rid;
   }
 
   /**
-   * @return DateTime
+   * @return \DateTime|null
    */
-  public function getDate(): DateTime
+  public function getDate()
   {
     return $this->date;
   }
 
   /**
-   * @param DateTime $date
+   * @param \DateTime|int|string $date
    */
-  public function setDate(DateTime $date): void
+  public function setDate($date): void
   {
-    $this->date = $date;
+    if ($date instanceof \DateTime) {
+      $this->date = $date;
+    } elseif ($time = Util::filterInteger($date)) {
+      $this->date = \DateTime::createFromFormat('U', $time);
+    } elseif ($date = \DateTime::createFromFormat('Y-m-d', $date)) {
+      $this->date = $date;
+    }
   }
 
   /**
-   * @return Project
+   * @return Project|null
    */
-  public function getProject(): Project
+  public function getProject()
   {
     return $this->project;
   }
 
   /**
-   * @param Project $project
+   * @param Project|int|string $project
    */
-  public function setProject(Project $project): void
+  public function setProject($project): void
   {
-    $this->project = $project;
+    if ($project instanceof Project) {
+      $this->project = $project;
+    } elseif ($id = Util::filterInteger($project)) {
+      $projectRepository = new Repositories\ProjectRepository();
+      $this->project = $projectRepository->findByID($id);
+    }
   }
 
   /**
@@ -101,11 +173,26 @@ class Report
   }
 
   /**
-   * @param int $time
+   * @return string
    */
-  public function setTime(int $time): void
+  public function getTimeString(): string
   {
-    $this->time = $time;
+    $hours = floor($this->time / 60);
+    $minutes = floor($this->time - ($hours*60));
+    return str_pad($hours, 2, '0', STR_PAD_LEFT) . ':' . str_pad($minutes, 2, '0', STR_PAD_LEFT);
+  }
+
+  /**
+   * @param int|string $time
+   */
+  public function setTime($time): void
+  {
+    if (is_string($time) && strpos($time, ':')) {
+      $times = explode(':', $time);
+      $this->time = (($times[0] * 60) + $times[1]);
+    } elseif ($time = Util::filterInteger($time)) {
+      $this->time = $time;
+    }
   }
 
   /**
@@ -125,64 +212,35 @@ class Report
   }
 
   /**
-   * @return User
+   * @return User|null
    */
-  public function getCreator(): User
+  public function getCreator()
   {
     return $this->creator;
   }
 
   /**
-   * @param User $creator
+   * @param User|int|string $creator
    */
-  public function setCreator(User $creator): void
+  public function setCreator($creator): void
   {
-    $this->creator = $creator;
-  }
-
-
-  /**
-   * creates a report from an array
-   * @param array $data
-   * @param bool $validate should the input be validated or not
-   * @return Report
-   */
-  public static function createFromArray(array $data, $validate = true)
-  {
-    $report = new Report();
-
-    $report->rid = $data['rid'] ?? 0;
-    $report->date = $data['date'] ?? null;
-    $report->project = $data['project'] ?? null;
-    $report->time = $data['time'] ?? 0;
-    $report->description = $data['description'] ?? '';
-    $report->creator = $data['creator'] ?? null;
-
-    if ($validate)
-      $report->validate();
-
-    return $report;
-  }
-
-  /**
-   * Function for validation of the input for a report
-   */
-  private function validate()
-  {
-    // TODO: Validation
-
-    $status = true;
-    $inputfields = ['land' => true];
-
-    if (!Util::CheckName($this->land)) {
-      $inputfields['land'] = false;
-      $status = false;
-    }
-
-    if (!$status) {
-      echo Rest::encodeJson($inputfields);
-      Rest::setHttpHeaders(420, true);
+    if ($creator instanceof User) {
+      $this->creator = $creator;
+    } elseif ($id = Util::filterInteger($creator)) {
+      $userRepository = new Repositories\UserRepository();
+      $this->creator = $userRepository->findByID($id);
     }
   }
 
+  public function jsonSerialize()
+  {
+    return [
+      'rid' => $this->getRid(),
+      'date' => (!is_null($this->getDate())) ? $this->getDate()->format('Y-m-d') : null,
+      'project' => $this->getProject(),
+      'time' => $this->getTimeString(),
+      'description' => $this->getDescription(),
+      'creator' => $this->getCreator(),
+    ];
+  }
 }

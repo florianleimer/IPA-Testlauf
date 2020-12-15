@@ -31,31 +31,8 @@ class ReportRepository implements BaseRepository
     if ($report->getRid() > 0) {
       return $this->update($report);
     } else {
-      return $this->save($report);
+      return $this->insert($report);
     }
-  }
-
-  /**
-   * @param $report Models\Report
-   * @return Models\Report
-   */
-  public function insert($report)
-  {
-    $data = [
-      $report->getDate()->getTimestamp(),
-      $report->getProject()->getPid(),
-      $report->getTime(),
-      $report->getDescription(),
-      $report->getCreator()->getUid(),
-    ];
-
-    $insertedId = $this->db->queryPrepared('
-                INSERT INTO report (date, project, time, description, creator)
-                VALUES (?, ?, ?, ?, ?)
-            ', $data);
-    $report->setRid($insertedId);
-
-    return $report;
   }
 
   /**
@@ -65,11 +42,11 @@ class ReportRepository implements BaseRepository
   public function update($report)
   {
     $data = [
-      $report->getDate()->getTimestamp(),
-      $report->getProject()->getPid(),
+      (!is_null($report->getDate())) ? $report->getDate()->getTimestamp() : 0,
+      (!is_null($report->getProject())) ? $report->getProject()->getPid() : 0,
       $report->getTime(),
       $report->getDescription(),
-      $report->getCreator()->getUid(),
+      (!is_null($report->getCreator())) ? $report->getCreator()->getUid() : 0,
       $report->getRid(),
     ];
 
@@ -78,6 +55,29 @@ class ReportRepository implements BaseRepository
                 SET date = ?, project = ?, time = ?, description = ?, creator = ?
                 WHERE rid = ?
             ', $data);
+
+    return $report;
+  }
+
+  /**
+   * @param $report Models\Report
+   * @return Models\Report
+   */
+  public function insert($report)
+  {
+    $data = [
+      (!is_null($report->getDate())) ? $report->getDate()->getTimestamp() : 0,
+      (!is_null($report->getProject())) ? $report->getProject()->getPid() : 0,
+      $report->getTime(),
+      $report->getDescription(),
+      (!is_null($report->getCreator())) ? $report->getCreator()->getUid() : 0,
+    ];
+
+    $insertedId = $this->db->queryPrepared('
+                INSERT INTO report (date, project, time, description, creator)
+                VALUES (?, ?, ?, ?, ?)
+            ', $data);
+    $report->setRid($insertedId);
 
     return $report;
   }
@@ -95,8 +95,8 @@ class ReportRepository implements BaseRepository
     $results = [];
 
     $statement = $this->db->select('SELECT * FROM report ORDER BY date');
-    while ($row = $statement->fetchObject(Models\Report::class)) {
-      $results = $row;
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\Report::createFromArray($row, false);
     }
 
     return $results;
@@ -104,11 +104,12 @@ class ReportRepository implements BaseRepository
 
   /**
    * @param int $id
-   * @return Models\Report
+   * @return Models\User
    */
   public function findByID(int $id)
   {
-    return $this->queryPrepared('SELECT * FROM report WHERE rid = ? LIMIT 1', [$id])->fetchObject(Models\Report::class);
+    $statement = $this->db->selectPrepared('SELECT * FROM report WHERE rid = ? LIMIT 1', [$id]);
+    return Models\Report::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
   }
 
 }

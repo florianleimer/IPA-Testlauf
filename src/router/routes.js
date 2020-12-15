@@ -8,7 +8,9 @@ import CustomerEdit from "@/pages/Customer/Edit.vue";
 import ProjectLayout from "@/pages/ProjectLayout.vue";
 import ProjectOverview from "@/pages/Project/Overview.vue";
 import ProjectEdit from "@/pages/Project/Edit.vue";
-import Reports from "@/pages/Reports.vue";
+import ReportLayout from "@/pages/ReportLayout.vue";
+import ReportOverview from "@/pages/Report/Overview.vue";
+import ReportEdit from "@/pages/Report/Edit.vue";
 import NotFound from "@/pages/NotFoundPage.vue";
 
 const routes = [
@@ -66,8 +68,24 @@ const routes = [
       },
       {
         path: "reports",
-        name: "Zeiterfassung",
-        component: Reports
+        component: ReportLayout,
+        children: [
+          {
+            path: "",
+            name: "Reports-Übersicht",
+            component: ReportOverview
+          },
+          {
+            path: "create",
+            name: "Report erstellen",
+            component: ReportEdit
+          },
+          {
+            path: "edit/:id",
+            name: "Report bearbeiten",
+            component: ReportEdit
+          },
+        ]
       },
       /*
       {
