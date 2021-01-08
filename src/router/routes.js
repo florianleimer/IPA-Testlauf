@@ -1,7 +1,9 @@
 import MainLayout from "@/layout/MainLayout.vue";
 
 // Pages
-import Users from "@/pages/Users.vue";
+import UserLayout from "@/pages/UserLayout.vue";
+import UserOverview from "@/pages/User/Overview.vue";
+import UserEdit from "@/pages/User/Edit.vue";
 import CustomerLayout from "@/pages/CustomerLayout.vue";
 import CustomerOverview from "@/pages/Customer/Overview.vue";
 import CustomerEdit from "@/pages/Customer/Edit.vue";
@@ -21,8 +23,24 @@ const routes = [
     children: [
       {
         path: "users",
-        name: "Benutzer",
-        component: Users
+        component: UserLayout,
+        children: [
+          {
+            path: "",
+            name: "Benutzer-Übersicht",
+            component: UserOverview
+          },
+          {
+            path: "create",
+            name: "Benutzer erstellen",
+            component: UserEdit
+          },
+          {
+            path: "edit/:id",
+            name: "Benutzer bearbeiten",
+            component: UserEdit
+          },
+        ]
       },
       {
         path: "customers",

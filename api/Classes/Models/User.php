@@ -12,6 +12,9 @@ use ProbeIPA\Classes\Util;
 class User implements \JsonSerializable
 {
 
+  const STATUS_ADMINISTRATOR = 'admin';
+  const STATUS_USER = 'user';
+
   /**
    * @var int
    */
@@ -40,7 +43,7 @@ class User implements \JsonSerializable
   /**
    * @var string
    */
-  protected $status = '';
+  protected $status = self::STATUS_USER;
 
   /**
    * creates a user from an array
@@ -50,6 +53,9 @@ class User implements \JsonSerializable
    */
   public static function createFromArray(array $data, $validate = true)
   {
+    if ($validate)
+      self::validate($data);
+
     $user = new User();
 
     $user->setUid($data['uid'] ?? 0);
@@ -57,21 +63,17 @@ class User implements \JsonSerializable
     $user->setInitials($data['initials'] ?? '');
     $user->setPassword($data['password'] ?? '');
     $user->setActive($data['active'] ?? false);
-    $user->setStatus($data['status'] ?? '');
-
-    if ($validate)
-      $user->validate();
+    $user->setStatus($data['status'] ?? self::STATUS_USER);
 
     return $user;
   }
 
   /**
    * Function for validation of the input for a user
+   * @param array $data
    */
-  private function validate()
+  private static function validate(array $data)
   {
-    // TODO: Validation
-
     $status = true;
     $hasError = [
       'name' => false,
@@ -81,8 +83,20 @@ class User implements \JsonSerializable
       'status' => false,
     ];
 
-    if (!Util::CheckName($this->name)) {
+    if (!Util::CheckName($data['name'])) {
       $hasError['name'] = true;
+      $status = false;
+    }
+    if (!Util::CheckEmpty($data['initials'], 2)) {
+      $hasError['initials'] = true;
+      $status = false;
+    }
+    if (!Util::CheckPassword($data['password'])) {
+      $hasError['password'] = true;
+      $status = false;
+    }
+    if (!Util::CheckInArray($data['status'], [self::STATUS_ADMINISTRATOR, self::STATUS_USER])) {
+      $hasError['status'] = true;
       $status = false;
     }
 
@@ -195,7 +209,7 @@ class User implements \JsonSerializable
       'uid' => $this->getUid(),
       'name' => $this->getName(),
       'initials' => $this->getInitials(),
-      //'password' => $this->getPassword(),
+      'password' => '**********', // $this->getPassword(),
       'active' => $this->isActive(),
       'status' => $this->getStatus(),
     ];
