@@ -8,7 +8,7 @@
             <form @submit.prevent="login">
               <base-input label="Initialen" placeholder="Initialen" v-model="user.username"
                           :has-error="errors.username"></base-input>
-              <base-input label="Passwort" placeholder="Passwort" v-model="user.password"
+              <base-input label="Passwort" placeholder="Passwort" type="password" v-model="user.password"
                           :has-error="errors.password"></base-input>
               <div class="text-right">
                 <base-button type="primary" nativeType="submit">Login</base-button>
