@@ -78,6 +78,9 @@ export default {
       this.axios({
         method: 'GET',
         url: '/api/project/'+pid+'/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then((response) => {
         this.project = {
           pid: response.data.pid,
@@ -97,6 +100,9 @@ export default {
     this.axios({
       method: 'GET',
       url: '/api/customer/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then((response) => {
       this.customersData = response.data;
     }).catch(error => {
@@ -105,6 +111,9 @@ export default {
     this.axios({
       method: 'GET',
       url: '/api/user/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then((response) => {
       this.usersData = response.data;
     }).catch(error => {
@@ -116,6 +125,9 @@ export default {
       this.axios({
         method: 'POST',
         url: '/api/project/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        },
         data: {
           project: this.project
         }

@@ -50,6 +50,9 @@ export default {
       this.axios({
         method: 'GET',
         url: '/api/customer/'+cid+'/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then((response) => {
         this.customer = {
           cid: response.data.cid,
@@ -68,6 +71,9 @@ export default {
       this.axios({
         method: 'POST',
         url: '/api/customer/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        },
         data: {
           customer: this.customer
         }

@@ -2,6 +2,8 @@
 Options +FollowSymlinks
 RewriteEngine on
 
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 # map neat URL to internal URL
 RewriteRule ^customer/$   index.php?management=customer [nc,qsa]
 RewriteRule ^customer/([0-9]+)/$   index.php?management=customer&cid=$1 [nc,qsa]

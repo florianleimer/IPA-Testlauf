@@ -24,7 +24,7 @@ class Authentication
    * @return string|null token for user
    * @throws Exception
    */
-  public static function getToken($username, $password)
+  public static function getToken(string $username, string $password)
   {
     $uid = self::authenticateUser($username, $password);
     if ($uid !== null) {
@@ -36,20 +36,21 @@ class Authentication
 
   /**
    * @param string $username
+   * @param string $password
    * @return int|null uid of the found user
    * @throws Exception
    */
-  private static function authenticateUser($username, $password)
+  private static function authenticateUser(string $username, string $password)
   {
     $userRepository = new UserRepository();
     $user = $userRepository->findByUsername($username);
 
-    $errors = ['username' => true, 'password' => true];
+    $errors = ['username' => false, 'password' => false];
     if (empty($user)) {
-      $errors['username'] = false;
-      $errors['password'] = false;
+      $errors['username'] = true;
+      $errors['password'] = true;
     } else if (!password_verify($password, $user->getPassword())) {
-      $errors['password'] = false;
+      $errors['password'] = true;
     } else {
       return $user->getUid();
     }
@@ -63,7 +64,7 @@ class Authentication
    * @return boolean return if check was sucessful
    * @throws Exception
    */
-  public static function validateToken($token)
+  public static function validateToken(string $token)
   {
     if (empty($token))
       return false;

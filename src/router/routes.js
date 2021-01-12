@@ -1,6 +1,7 @@
 import MainLayout from "@/layout/MainLayout.vue";
 
 // Pages
+import Login from "@/pages/LoginPage.vue";
 import UserLayout from "@/pages/UserLayout.vue";
 import UserOverview from "@/pages/User/Overview.vue";
 import UserEdit from "@/pages/User/Edit.vue";
@@ -16,6 +17,11 @@ import ReportEdit from "@/pages/Report/Edit.vue";
 import NotFound from "@/pages/NotFoundPage.vue";
 
 const routes = [
+  {
+    path: "/login",
+    name: "Login",
+    component: Login
+  },
   {
     path: "/",
     component: MainLayout,

@@ -48,7 +48,10 @@ export default {
   mounted() {
     this.axios({
       method: 'GET',
-      url: '/api/customer/'
+      url: '/api/customer/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then(response => {
       this.tableData = response.data;
     }).catch(error => {
@@ -60,6 +63,9 @@ export default {
       this.axios({
         method: 'DELETE',
         url: '/api/customer/'+cid+'/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then(() => {
         this.$notify({
           message: 'Kunde wurde erfolgreich gelöscht!',

@@ -119,7 +119,7 @@ class UserRepository implements BaseRepository
   public function findByUsername(string $username)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM user WHERE initials = ? LIMIT 1', [$username]);
-    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
+    return ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? Models\User::createFromArray($result, false) : null;
   }
 
 }

@@ -58,6 +58,9 @@ export default {
       this.axios({
         method: 'GET',
         url: '/api/report/' + rid + '/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then((response) => {
         this.report = {
           rid: response.data.rid,
@@ -75,6 +78,9 @@ export default {
     this.axios({
       method: 'GET',
       url: '/api/project/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then((response) => {
       this.projectData = response.data;
     }).catch(error => {
@@ -86,6 +92,9 @@ export default {
       this.axios({
         method: 'POST',
         url: '/api/report/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        },
         data: {
           report: this.report
         }

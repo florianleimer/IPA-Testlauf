@@ -19,13 +19,42 @@ import router from "./router/index";
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import BlackDashboard from "./plugins/blackDashboard";
+
 Vue.use(VueAxios, axios)
 
-import BlackDashboard from "./plugins/blackDashboard";
 Vue.use(BlackDashboard);
 
 Vue.use(VueRouter);
 Vue.use(RouterPrefetch);
+
+// Redirect if not logged in
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login'];
+  const authRequired = !publicPages.includes(to.path);
+
+  if (authRequired) {
+    if (!sessionStorage.getItem('user'))
+      return next('/login');
+
+    axios({
+      method: "GET",
+      url: '/api/login/',
+      params: {
+        token: sessionStorage.getItem('user')
+      }
+    }).then(response => {
+      if (response.data !== true) {
+        sessionStorage.setItem('user', '');
+        return next('/login');
+      }
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  next();
+});
 
 /* eslint-disable no-new */
 new Vue({

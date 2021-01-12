@@ -168,6 +168,9 @@ class User implements \JsonSerializable
    */
   public function setPassword(string $password): void
   {
+    if (is_null(password_get_info($password)['algo'])) {
+      $password = password_hash($password, PASSWORD_DEFAULT);
+    }
     $this->password = $password;
   }
 

@@ -66,6 +66,9 @@ export default {
       this.axios({
         method: 'GET',
         url: '/api/user/' + uid + '/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then((response) => {
         this.user = {
           uid: response.data.uid,
@@ -85,6 +88,9 @@ export default {
       this.axios({
         method: 'POST',
         url: '/api/user/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        },
         data: {
           user: this.user
         }

@@ -48,7 +48,10 @@ export default {
   mounted() {
     this.axios({
       method: 'GET',
-      url: '/api/report/'
+      url: '/api/report/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then(response => {
       this.tableData = response.data;
     }).catch(error => {
@@ -72,6 +75,9 @@ export default {
       this.axios({
         method: 'DELETE',
         url: '/api/report/'+rid+'/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then(() => {
         this.$notify({
           message: 'Report wurde erfolgreich gelöscht!',

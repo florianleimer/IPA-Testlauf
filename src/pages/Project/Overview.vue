@@ -52,7 +52,10 @@ export default {
   mounted() {
     this.axios({
       method: 'GET',
-      url: '/api/project/'
+      url: '/api/project/',
+      headers: {
+        'Authorization': sessionStorage.getItem('user')
+      }
     }).then(response => {
       this.tableData = response.data;
     }).catch(error => {
@@ -75,6 +78,9 @@ export default {
       this.axios({
         method: 'DELETE',
         url: '/api/project/'+pid+'/',
+        headers: {
+          'Authorization': sessionStorage.getItem('user')
+        }
       }).then(() => {
         this.$notify({
           message: 'Projekt wurde erfolgreich gelöscht!',

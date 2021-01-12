@@ -24,10 +24,8 @@ class Controller
   public static function dispatch($management, $method, $data)
   {
 
-    /*
-    if ($management != 'login' && (!isset($data->token) || !Authentication::validateToken($data->token)))
+    if ($management != 'login' && (!isset($_SERVER['HTTP_AUTHORIZATION']) || !Authentication::validateToken($_SERVER['HTTP_AUTHORIZATION'])))
       Rest::setHttpHeaders(403, true);
-    */
 
     switch ($management) {
       case 'customer':
@@ -169,8 +167,7 @@ class Controller
   {
     switch ($method) {
       case 'POST':
-        $user = Models\User::createFromArray($data->user);
-        return Authentication::getToken($user);
+        return Authentication::getToken($data->user->username, $data->user->password);
       case 'GET':
         return Authentication::validateToken($data->token);
     }
