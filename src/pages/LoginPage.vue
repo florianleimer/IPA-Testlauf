@@ -37,21 +37,26 @@ export default {
   },
   methods: {
     login() {
-      this.axios({
-        method: 'POST',
-        url: '/api/login/',
-        data: {
+      this.apiHelpers.loginRequest(
+        'POST',
+        {
           user: this.user
         }
-      }).then(response => {
+      ).then(response => {
         this.$notify({
           message: 'Erfolgreiches Login!',
           icon: 'fas fa-user',
           type: 'success'
         });
-        sessionStorage.setItem('user', response.data);
+
+        this.userHelpers.setUser(response.data);
         this.$router.push('/');
       }).catch(error => {
+        this.$notify({
+          message: 'Das Login hat nicht geklappt!',
+          icon: 'fas fa-user',
+          type: 'danger'
+        });
         switch (error.response.status) {
           case 420:
             this.errors = error.response.data;

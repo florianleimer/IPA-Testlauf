@@ -14,6 +14,7 @@ import ProjectEdit from "@/pages/Project/Edit.vue";
 import ReportLayout from "@/pages/ReportLayout.vue";
 import ReportOverview from "@/pages/Report/Overview.vue";
 import ReportEdit from "@/pages/Report/Edit.vue";
+import Profile from "@/pages/ProfilePage.vue";
 import NotFound from "@/pages/NotFoundPage.vue";
 
 const routes = [
@@ -25,29 +26,9 @@ const routes = [
   {
     path: "/",
     component: MainLayout,
-    redirect: "/users",
+    redirect: "/customers",
     children: [
-      {
-        path: "users",
-        component: UserLayout,
-        children: [
-          {
-            path: "",
-            name: "Benutzer-Übersicht",
-            component: UserOverview
-          },
-          {
-            path: "create",
-            name: "Benutzer erstellen",
-            component: UserEdit
-          },
-          {
-            path: "edit/:id",
-            name: "Benutzer bearbeiten",
-            component: UserEdit
-          },
-        ]
-      },
+
       {
         path: "customers",
         component: CustomerLayout,
@@ -111,13 +92,37 @@ const routes = [
           },
         ]
       },
-      /*
       {
-        path: "*",
+        path: "users",
+        component: UserLayout,
+        children: [
+          {
+            path: "",
+            name: "Benutzer-Übersicht",
+            component: UserOverview
+          },
+          {
+            path: "create",
+            name: "Benutzer erstellen",
+            component: UserEdit
+          },
+          {
+            path: "edit/:id",
+            name: "Benutzer bearbeiten",
+            component: UserEdit
+          },
+        ]
+      },
+      {
+        path: "profile",
+        name: "Profil",
+        component: Profile
+      },
+      {
+        path: "404",
         name: "Fehler",
         component: NotFound
       },
-      */
     ]
   }
 ];

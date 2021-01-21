@@ -96,25 +96,31 @@ CREATE TABLE `user` (
 -- Indizes für die Tabelle `customer`
 --
 ALTER TABLE `customer`
-  ADD PRIMARY KEY (`cid`);
+  ADD PRIMARY KEY (`cid`),
+  ADD UNIQUE KEY `client_number` (`client_number`);
 
 --
 -- Indizes für die Tabelle `project`
 --
 ALTER TABLE `project`
-  ADD PRIMARY KEY (`pid`);
+  ADD PRIMARY KEY (`pid`),
+  ADD KEY `FK_customer` (`customer`),
+  ADD KEY `FK_projectmanager` (`project_manager`);
 
 --
 -- Indizes für die Tabelle `report`
 --
 ALTER TABLE `report`
-  ADD PRIMARY KEY (`rid`);
+  ADD PRIMARY KEY (`rid`),
+  ADD KEY `FK_creator` (`creator`),
+  ADD KEY `FK_project` (`project`);
 
 --
 -- Indizes für die Tabelle `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`uid`);
+  ADD PRIMARY KEY (`uid`),
+  ADD UNIQUE KEY `initials` (`initials`);
 
 --
 -- AUTO_INCREMENT für exportierte Tabellen
@@ -143,6 +149,24 @@ ALTER TABLE `report`
 --
 ALTER TABLE `user`
   MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints der exportierten Tabellen
+--
+
+--
+-- Constraints der Tabelle `project`
+--
+ALTER TABLE `project`
+  ADD CONSTRAINT `FK_customer` FOREIGN KEY (`customer`) REFERENCES `customer` (`cid`),
+  ADD CONSTRAINT `FK_projectmanager` FOREIGN KEY (`project_manager`) REFERENCES `user` (`uid`);
+
+--
+-- Constraints der Tabelle `report`
+--
+ALTER TABLE `report`
+  ADD CONSTRAINT `FK_creator` FOREIGN KEY (`creator`) REFERENCES `user` (`uid`),
+  ADD CONSTRAINT `FK_project` FOREIGN KEY (`project`) REFERENCES `project` (`pid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

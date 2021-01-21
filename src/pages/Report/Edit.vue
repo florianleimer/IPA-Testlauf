@@ -14,7 +14,7 @@
       <base-input label="Projekt">
         <select class="form-control" :class="{'is-invalid': errors.project}" v-model="report.project">
           <option value="0"></option>
-          <option v-for="project in projectData" :value="project.pid">{{ project.name }}</option>
+          <option v-for="project in projectData" :key="project.pid" :value="project.pid">{{ project.name }}</option>
         </select>
       </base-input>
       <base-input label="Aufgewendete Zeit" type="time" v-model="report.time" :has-error="errors.time"></base-input>
@@ -55,13 +55,12 @@ export default {
   beforeMount() {
     const rid = this.$route.params.id;
     if (rid) {
-      this.axios({
-        method: 'GET',
-        url: '/api/report/' + rid + '/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.reportRequest(
+        'GET',
+        {
+          rid: rid
         }
-      }).then((response) => {
+      ).then((response) => {
         this.report = {
           rid: response.data.rid,
           date: response.data.date,
@@ -75,13 +74,12 @@ export default {
       });
     }
 
-    this.axios({
-      method: 'GET',
-      url: '/api/project/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
+    this.apiHelpers.projectRequest(
+      'GET',
+      {
+        getAll: true
       }
-    }).then((response) => {
+    ).then((response) => {
       this.projectData = response.data;
     }).catch(error => {
       console.log(error);
@@ -89,16 +87,12 @@ export default {
   },
   methods: {
     save() {
-      this.axios({
-        method: 'POST',
-        url: '/api/report/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
-        },
-        data: {
+      this.apiHelpers.reportRequest(
+        'POST',
+        {
           report: this.report
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Report wurde erfolgreich gespeichert!',
           icon: 'fas fa-save',
@@ -106,6 +100,11 @@ export default {
         });
         this.$router.push('/reports');
       }).catch(error => {
+        this.$notify({
+          message: 'Report konnte nicht gespeichert werden!',
+          icon: 'fas fa-save',
+          type: 'danger'
+        });
         switch (error.response.status) {
           case 420:
             this.errors = error.response.data;

@@ -14,7 +14,7 @@
       <base-input label="Kunde">
         <select class="form-control" :class="{ 'is-invalid' : errors.customer }" v-model="project.customer">
           <option value="0"></option>
-          <option v-for="customer in customersData" :value="customer.cid">{{ customer.name }}</option>
+          <option v-for="customer in customersData" :key="customer.cid" :value="customer.cid">{{ customer.name }}</option>
         </select>
       </base-input>
       <base-input label="Startdatum" type="date" v-model="project.startDate" :has-error="errors.startDate"></base-input>
@@ -22,7 +22,7 @@
         <select class="form-control" :class="{ 'is-invalid' : errors.status }" v-model="project.status">
           <option value=""></option>
           <option value="open">Offen</option>
-          <option value="completed">Erledigt</option>
+          <option value="completed">Abgeschlossen</option>
           <option value="support">Support</option>
         </select>
       </base-input>
@@ -30,7 +30,7 @@
       <base-input label="Projektmanager">
         <select class="form-control" :class="{ 'is-invalid' : errors.projectManager }" v-model="project.projectManager">
           <option value="0"></option>
-          <option v-for="user in usersData" :value="user.uid">{{ user.name }}</option>
+          <option v-for="user in usersData" :key="user.uid" :value="user.uid">{{ user.name }}</option>
         </select>
       </base-input>
       <base-input label="Kommentare">
@@ -75,13 +75,12 @@ export default {
   beforeMount() {
     const pid = this.$route.params.id;
     if (pid) {
-      this.axios({
-        method: 'GET',
-        url: '/api/project/'+pid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.projectRequest(
+        'GET',
+        {
+          pid: pid
         }
-      }).then((response) => {
+      ).then((response) => {
         this.project = {
           pid: response.data.pid,
           name: response.data.name,
@@ -97,24 +96,23 @@ export default {
       });
     }
 
-    this.axios({
-      method: 'GET',
-      url: '/api/customer/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
+    this.apiHelpers.customerRequest(
+      'GET',
+      {
+        getAll: true
       }
-    }).then((response) => {
+    ).then((response) => {
       this.customersData = response.data;
     }).catch(error => {
       console.log(error);
     });
-    this.axios({
-      method: 'GET',
-      url: '/api/user/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
+
+    this.apiHelpers.userRequest(
+      'GET',
+      {
+        getAll: true
       }
-    }).then((response) => {
+    ).then((response) => {
       this.usersData = response.data;
     }).catch(error => {
       console.log(error);
@@ -122,16 +120,12 @@ export default {
   },
   methods: {
     save() {
-      this.axios({
-        method: 'POST',
-        url: '/api/project/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
-        },
-        data: {
+      this.apiHelpers.projectRequest(
+        'POST',
+        {
           project: this.project
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Projekt wurde erfolgreich gespeichert!',
           icon: 'fas fa-save',
@@ -139,6 +133,11 @@ export default {
         });
         this.$router.push('/projects');
       }).catch(error => {
+        this.$notify({
+          message: 'Projekt konnte nicht gespeichert werden!',
+          icon: 'fas fa-save',
+          type: 'danger'
+        });
         switch (error.response.status) {
           case 420:
             this.errors = error.response.data;

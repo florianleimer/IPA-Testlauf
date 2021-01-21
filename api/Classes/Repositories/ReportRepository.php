@@ -103,13 +103,29 @@ class ReportRepository implements BaseRepository
   }
 
   /**
+   * @param int $creator
+   * @return array<Models\Report>
+   */
+  public function findAllForCreator($creator)
+  {
+    $results = [];
+
+    $statement = $this->db->selectPrepared('SELECT * FROM report WHERE creator = ? ORDER BY date', [$creator]);
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\Report::createFromArray($row, false);
+    }
+
+    return $results;
+  }
+
+  /**
    * @param int $id
-   * @return Models\User
+   * @return Models\Report
    */
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM report WHERE rid = ? LIMIT 1', [$id]);
-    return Models\Report::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
+    return ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? Models\Report::createFromArray($result, false) : null;
   }
 
 }

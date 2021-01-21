@@ -12,7 +12,7 @@
       </div>
       <base-input label="Name" placeholder="Name" v-model="user.name" :has-error="errors.name"></base-input>
       <base-input label="Initialen" placeholder="Initialen" v-model="user.initials" :has-error="errors.initials"></base-input>
-      <base-input label="Passwort" placeholder="Passwort" v-model="user.password" :has-error="errors.password"></base-input>
+      <base-input label="Passwort" placeholder="Passwort" type="password" v-model="user.password" :has-error="errors.password"></base-input>
       <div class="row">
         <div class="col-md-6">
           <base-input label="Ist aktiv">
@@ -63,18 +63,17 @@ export default {
   beforeMount() {
     const uid = this.$route.params.id;
     if (uid) {
-      this.axios({
-        method: 'GET',
-        url: '/api/user/' + uid + '/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.userRequest(
+        'GET',
+        {
+          uid: uid
         }
-      }).then((response) => {
+      ).then((response) => {
         this.user = {
           uid: response.data.uid,
           name: response.data.name,
           initials: response.data.initials,
-          password: response.data.password,
+          password: '',
           active: response.data.active,
           status: response.data.status
         };
@@ -85,16 +84,12 @@ export default {
   },
   methods: {
     save() {
-      this.axios({
-        method: 'POST',
-        url: '/api/user/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
-        },
-        data: {
+      this.apiHelpers.userRequest(
+        'POST',
+        {
           user: this.user
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Benutzer wurde erfolgreich gespeichert!',
           icon: 'fas fa-save',
@@ -102,6 +97,11 @@ export default {
         });
         this.$router.push('/users');
       }).catch(error => {
+        this.$notify({
+          message: 'Benutzer konnte nicht gespeichert werden!',
+          icon: 'fas fa-save',
+          type: 'danger'
+        });
         switch (error.response.status) {
           case 420:
             this.errors = error.response.data;

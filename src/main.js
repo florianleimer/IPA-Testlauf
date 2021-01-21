@@ -12,44 +12,52 @@
 
  */
 import Vue from "vue";
+import App from "./App";
+
 import VueRouter from "vue-router";
 import RouterPrefetch from 'vue-router-prefetch'
-import App from "./App";
 import router from "./router/index";
-
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-import BlackDashboard from "./plugins/blackDashboard";
-
-Vue.use(VueAxios, axios)
-
-Vue.use(BlackDashboard);
-
 Vue.use(VueRouter);
 Vue.use(RouterPrefetch);
 
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+Vue.use(VueAxios, axios)
+
+import BlackDashboard from "./plugins/blackDashboard";
+Vue.use(BlackDashboard);
+
+import helpers from "./helpers";
+Vue.use(helpers);
+
+import config from "./config";
+
 // Redirect if not logged in
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login'];
-  const authRequired = !publicPages.includes(to.path);
-
-  if (authRequired) {
-    if (!sessionStorage.getItem('user'))
+  if (!config.publicPages.some(el => to.path.startsWith(el))) {
+    if (!Vue.userHelpers.getUser())
       return next('/login');
 
-    axios({
-      method: "GET",
-      url: '/api/login/',
-      params: {
-        token: sessionStorage.getItem('user')
+    Vue.apiHelpers.loginRequest(
+      'GET',
+      {
+        token: Vue.userHelpers.getUserToken()
       }
-    }).then(response => {
-      if (response.data !== true) {
-        sessionStorage.setItem('user', '');
+    ).then(response => {
+      if (response.data.validated !== true) {
+        Vue.userHelpers.setUser({});
         return next('/login');
+      }
+
+      const allowedPages = config.rolePages[response.data.role];
+      if (!allowedPages.some(el => to.path.startsWith(el))) {
+        return next('/404');
       }
     }).catch(error => {
       console.log(error);
+
+      Vue.userHelpers.setUser({});
+      return next('/login');
     });
   }
 

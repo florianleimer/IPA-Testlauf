@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <base-table :data="tableData">
+    <base-table :data="tableData" v-if="hasTableData">
       <template slot="columns">
         <th width="22%">Name</th>
         <th width="22%">Kundennummer</th>
@@ -32,41 +32,44 @@
         </td>
       </template>
     </base-table>
+    <div class="loader text-white text-center py-5" v-else-if="loading">
+      <i class="fas fa-spinner fa-spin fa-3x"></i>
+    </div>
+    <base-alert type="info" v-else>Keine Kunden vorhanden</base-alert>
+
   </div>
 </template>
 
 <script>
 import BaseTable from "@/components/BaseTable";
+import BaseAlert from "@/components/BaseAlert";
 
 export default {
-  components: {BaseTable},
+  components: {BaseAlert, BaseTable},
   data() {
     return {
       tableData: [],
+      loading: true,
     }
   },
   mounted() {
-    this.axios({
-      method: 'GET',
-      url: '/api/customer/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
-      }
-    }).then(response => {
+    this.apiHelpers.customerRequest(
+      'GET'
+    ).then(response => {
       this.tableData = response.data;
+      this.loading = false;
     }).catch(error => {
       console.log(error);
     });
   },
   methods: {
     deletion(cid) {
-      this.axios({
-        method: 'DELETE',
-        url: '/api/customer/'+cid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.customerRequest(
+        'DELETE',
+        {
+          cid: cid
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Kunde wurde erfolgreich gelöscht!',
           icon: 'fas fa-trash',
@@ -76,6 +79,11 @@ export default {
       }).catch(error => {
         console.log(error);
       });
+    }
+  },
+  computed: {
+    hasTableData() {
+      return (this.tableData.length > 0);
     }
   }
 };

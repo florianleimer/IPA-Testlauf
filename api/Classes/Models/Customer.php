@@ -52,7 +52,7 @@ class Customer implements \JsonSerializable
 
     $customer->setCid($data['cid'] ?? 0);
     $customer->setName($data['name'] ?? '');
-    $customer->setClientNumber($data['clientNumber'] ?? $data['client_number'] ?? '');
+    $customer->setClientNumber($data['clientNumber'] ?? $data['client_number'] ?? ''); // TODO: Check that clientNumber is unique
     $customer->setAddress($data['address'] ?? '');
     $customer->setComments($data['comments'] ?? '');
 

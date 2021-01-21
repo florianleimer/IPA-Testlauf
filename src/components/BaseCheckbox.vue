@@ -53,9 +53,7 @@
         }
       },
       inlineClass() {
-        if (this.inline) {
-          return `form-check-inline`
-        }
+        return (this.inline) ? 'form-check-inline' : '';
       }
     },
     created() {

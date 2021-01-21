@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <base-table :data="tableData">
+    <base-table :data="tableData" v-if="hasTableData">
       <template slot="columns">
         <th width="30%">Name</th>
         <th width="20%">Initialen</th>
@@ -20,8 +20,8 @@
       <template v-slot:default="{row}">
         <td>{{ row.name }}</td>
         <td>{{ row.initials }}</td>
-        <td>{{ row.active }}</td>
-        <td>{{ row.status }}</td>
+        <td>{{ formatHelpers.formatBool(row.active) }}</td>
+        <td>{{ formatHelpers.userStatus(row.status) }}</td>
         <td class="text-right">
           <router-link class="btn btn-primary btn-link" :to="'/users/edit/'+row.uid">
             <i class="fas fa-pen fa-lg"></i>
@@ -32,41 +32,44 @@
         </td>
       </template>
     </base-table>
+    <div class="loader text-white text-center py-5" v-else-if="loading">
+      <i class="fas fa-spinner fa-spin fa-3x"></i>
+    </div>
+    <base-alert type="info" v-else>Keine Benutzer vorhanden</base-alert>
+
   </div>
 </template>
 
 <script>
 import BaseTable from "@/components/BaseTable";
+import BaseAlert from "@/components/BaseAlert";
 
 export default {
-  components: {BaseTable},
+  components: {BaseAlert, BaseTable},
   data() {
     return {
       tableData: [],
+      loading: true,
     }
   },
   mounted() {
-    this.axios({
-      method: 'GET',
-      url: '/api/user/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
-      }
-    }).then(response => {
+    this.apiHelpers.userRequest(
+      'GET'
+    ).then(response => {
       this.tableData = response.data;
+      this.loading = false;
     }).catch(error => {
       console.log(error);
     });
   },
   methods: {
     deletion(uid) {
-      this.axios({
-        method: 'DELETE',
-        url: '/api/user/'+uid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.userRequest(
+        'DELETE',
+        {
+          uid: uid
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Benutzer wurde erfolgreich gelöscht!',
           icon: 'fas fa-trash',
@@ -76,6 +79,11 @@ export default {
       }).catch(error => {
         console.log(error);
       });
+    }
+  },
+  computed: {
+    hasTableData() {
+      return (this.tableData.length > 0);
     }
   }
 };

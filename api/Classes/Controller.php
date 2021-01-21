@@ -2,13 +2,12 @@
 namespace ProbeIPA\Classes;
 
 use Exception;
-use function Sodium\library_version_major;
 
 /**
  * @autor Florian Leimer
- * @version 2020
- *§
- *  This class contains functions that implement the application logic.
+ * @version 2021
+ *
+ * This class contains functions that implement the application logic.
  */
 class Controller
 {
@@ -19,12 +18,13 @@ class Controller
    * @param string $management the requested management
    * @param string $method the requested method
    * @param array $data the input data
+   * @return mixed data to output
    * @throws Exception
    */
   public static function dispatch($management, $method, $data)
   {
 
-    if ($management != 'login' && (!isset($_SERVER['HTTP_AUTHORIZATION']) || !Authentication::validateToken($_SERVER['HTTP_AUTHORIZATION'])))
+    if (!Authentication::hasAccess($management))
       Rest::setHttpHeaders(403, true);
 
     switch ($management) {
@@ -36,6 +36,8 @@ class Controller
         return self::report($method, $data);
       case 'user':
         return self::user($method, $data);
+      case 'profile':
+        return self::profile($method, $data);
       case 'login':
         return self::login($method, $data);
       default:
@@ -48,6 +50,7 @@ class Controller
    *
    * @param string $method the requested method
    * @param array $data the input data
+   * @return mixed data to output
    * @throws Exception
    */
   private static function customer($method, $data)
@@ -76,6 +79,7 @@ class Controller
    *
    * @param string $method the requested method
    * @param array $data the input data
+   * @return mixed data to output
    * @throws Exception
    */
   private static function project($method, $data)
@@ -104,7 +108,7 @@ class Controller
    *
    * @param string $method the requested method
    * @param array $data the input data
-   * @return mixed of type person
+   * @return mixed data to output
    * @throws Exception
    */
   private static function report($method, $data)
@@ -120,7 +124,7 @@ class Controller
         if (isset($data->rid) && !empty($data->rid)) {
           return $reportRepository->findByID($data->rid);
         } else {
-          return $reportRepository->findAll();
+          return $reportRepository->findAllForCreator(Authentication::$currentUser->getUid());
         }
       case 'DELETE':
         $reportRepository->delete($data->rid);
@@ -133,6 +137,7 @@ class Controller
    *
    * @param string $method the requested method
    * @param array $data the input data
+   * @return mixed data to output
    * @throws Exception
    */
   private static function user($method, $data)
@@ -141,6 +146,7 @@ class Controller
 
     switch ($method) {
       case 'POST':
+        // TODO: Update without setting password
         $user = Models\User::createFromArray((array)$data->user);
         $userRepository->save($user);
         break;
@@ -148,7 +154,11 @@ class Controller
         if (isset($data->uid) && !empty($data->uid)) {
           return $userRepository->findByID($data->uid);
         } else {
-          return $userRepository->findAll();
+          if (isset($data->getAll) && $data->getAll) {
+            return $userRepository->findAll();
+          } else {
+            return $userRepository->findAllExcluded(Authentication::$currentUser->getUid());
+          }
         }
       case 'DELETE':
         $userRepository->delete($data->uid);
@@ -157,17 +167,80 @@ class Controller
   }
 
   /**
+   * Contains the application logic for users profile
+   *
+   * @param string $method the requested method
+   * @param array $data the input data
+   * @return mixed data to output
+   * @throws Exception
+   */
+  private static function profile($method, $data)
+  {
+    $userRepository = new Repositories\UserRepository();
+
+    switch ($method) {
+      case 'POST':
+        $user = Authentication::$currentUser;
+        $userData = (array)$data->user;
+
+        $status = true;
+        $hasError = [
+          'name' => false,
+          'initials' => false,
+          'password' => false,
+          'passwordRepeat' => false,
+        ];
+        if (Util::CheckName($userData['name'])) {
+          $user->setName($userData['name']);
+        } else {
+          $hasError['name'] = true;
+          $status = false;
+        }
+        if (Util::CheckEmpty($userData['initials'], 2)) {
+          $user->setInitials($userData['initials']); // TODO: Check that initials are unique
+        } else {
+          $hasError['initials'] = true;
+          $status = false;
+        }
+        if (Util::CheckEmpty($userData['password']) || Util::CheckEmpty($userData['passwordRepeat'])) {
+          if (!Util::CheckPassword($userData['password'])) {
+            $hasError['password'] = $hasError['passwordRepeat'] = true;
+            $status = false;
+          }
+          if ($userData['password'] === $userData['passwordRepeat']) {
+            $user->setPassword($userData['password']);
+          } else {
+            $hasError['passwordRepeat'] = true;
+            $status = false;
+          }
+        }
+
+        if (!$status) {
+          echo Rest::encodeJson($hasError);
+          Rest::setHttpHeaders(420, true);
+        }
+
+        $user = Authentication::$currentUser;
+        $userRepository->save($user);
+        break;
+      case 'GET':
+        return $userRepository->findByID(Authentication::$currentUser->getUid());
+    }
+  }
+
+  /**
    * Function to login User
    *
    * @param string $method the requested method
    * @param array $data the input data
-   * @return string token
+   * @return array data to output
+   * @throws Exception
    */
   private static function login($method, $data)
   {
     switch ($method) {
       case 'POST':
-        return Authentication::getToken($data->user->username, $data->user->password);
+        return Authentication::createToken($data->user->username, $data->user->password);
       case 'GET':
         return Authentication::validateToken($data->token);
     }

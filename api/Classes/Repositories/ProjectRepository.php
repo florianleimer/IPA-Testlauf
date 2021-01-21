@@ -113,7 +113,7 @@ class ProjectRepository implements BaseRepository
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM project WHERE pid = ? LIMIT 1', [$id]);
-    return Models\Project::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
+    return ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? Models\Project::createFromArray($result, false) : null;
   }
 
 }

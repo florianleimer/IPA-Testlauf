@@ -2,6 +2,7 @@
 
 namespace ProbeIPA\Classes\Models;
 
+use ProbeIPA\Classes\Authentication;
 use ProbeIPA\Classes\Repositories;
 use ProbeIPA\Classes\Rest;
 use ProbeIPA\Classes\Util;
@@ -61,7 +62,7 @@ class Report implements \JsonSerializable
     $report->setProject($data['project'] ?? null);
     $report->setTime($data['time'] ?? 0);
     $report->setDescription($data['description'] ?? '');
-    $report->setCreator($data['creator'] ?? null); // TODO: set to logged in user
+    $report->setCreator(Authentication::$currentUser ?? null);
 
     return $report;
   }

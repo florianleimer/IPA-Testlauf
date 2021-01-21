@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <base-table :data="tableData">
+    <base-table :data="tableData" v-if="hasTableData">
       <template slot="columns">
         <th width="16%">Name</th>
         <th width="17%">Kunde</th>
@@ -21,11 +21,11 @@
       </template>
       <template v-slot:default="{row}">
         <td>{{ row.name }}</td>
-        <td>{{ getObjectProperty(row.customer, 'name') }}</td>
-        <td>{{ formatDate(row.startDate) }}</td>
-        <td>{{ row.status }}</td>
-        <td>{{ formatCurrency(row.volume) }}</td>
-        <td>{{ getObjectProperty(row.projectManager, 'name') }}</td>
+        <td>{{ formatHelpers.getObjectProperty(row.customer, 'name') }}</td>
+        <td>{{ formatHelpers.formatDate(row.startDate) }}</td>
+        <td>{{ formatHelpers.projectStatus(row.status) }}</td>
+        <td>{{ formatHelpers.formatCurrency(row.volume) }}</td>
+        <td>{{ formatHelpers.getObjectProperty(row.projectManager, 'name') }}</td>
         <td class="text-right">
           <router-link class="btn btn-primary btn-link" :to="'/projects/edit/'+row.pid">
             <i class="fas fa-pen fa-lg"></i>
@@ -36,52 +36,44 @@
         </td>
       </template>
     </base-table>
+    <div class="loader text-white text-center py-5" v-else-if="loading">
+      <i class="fas fa-spinner fa-spin fa-3x"></i>
+    </div>
+    <base-alert type="info" v-else>Keine Projekte vorhanden</base-alert>
+
   </div>
 </template>
 
 <script>
 import BaseTable from "@/components/BaseTable";
+import BaseAlert from "@/components/BaseAlert";
 
 export default {
-  components: {BaseTable},
+  components: {BaseAlert, BaseTable},
   data() {
     return {
       tableData: [],
+      loading: true,
     }
   },
   mounted() {
-    this.axios({
-      method: 'GET',
-      url: '/api/project/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
-      }
-    }).then(response => {
+    this.apiHelpers.projectRequest(
+      'GET'
+    ).then(response => {
       this.tableData = response.data;
+      this.loading = false;
     }).catch(error => {
       console.log(error);
     });
   },
   methods: {
-    formatDate(dateString) {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
-    },
-    formatCurrency(number) {
-      return (number > 0) ? new Intl.NumberFormat('de-CH', { style: 'currency', currency: 'CHF' }).format(number) : '';
-    },
-    getObjectProperty(object, property) {
-      return (object) ? object[property] : '';
-    },
     deletion(pid) {
-      this.axios({
-        method: 'DELETE',
-        url: '/api/project/'+pid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.projectRequest(
+        'DELETE',
+        {
+          pid: pid
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Projekt wurde erfolgreich gelöscht!',
           icon: 'fas fa-trash',
@@ -91,6 +83,11 @@ export default {
       }).catch(error => {
         console.log(error);
       });
+    }
+  },
+  computed: {
+    hasTableData() {
+      return (this.tableData.length > 0);
     }
   }
 };

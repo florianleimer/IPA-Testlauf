@@ -107,7 +107,7 @@ class CustomerRepository implements BaseRepository
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM customer WHERE cid = ? LIMIT 1', [$id]);
-    return Models\Customer::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
+    return ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? Models\Customer::createFromArray($result, false) : null;
   }
 
 }

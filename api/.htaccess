@@ -6,15 +6,9 @@ RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 # map neat URL to internal URL
 RewriteRule ^customer/$   index.php?management=customer [nc,qsa]
-RewriteRule ^customer/([0-9]+)/$   index.php?management=customer&cid=$1 [nc,qsa]
-
 RewriteRule ^project/$   index.php?management=project [nc,qsa]
-RewriteRule ^project/([0-9]+)/$   index.php?management=project&pid=$1 [nc,qsa]
-
 RewriteRule ^report/$   index.php?management=report [nc,qsa]
-RewriteRule ^report/([0-9]+)/$   index.php?management=report&rid=$1 [nc,qsa]
-
 RewriteRule ^user/$   index.php?management=user [nc,qsa]
-RewriteRule ^user/([0-9]+)/$   index.php?management=user&uid=$1 [nc,qsa]
+RewriteRule ^profile/$   index.php?management=profile [nc,qsa]
 
 RewriteRule ^login/$   index.php?management=login [nc,qsa]

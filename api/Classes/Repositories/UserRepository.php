@@ -103,13 +103,29 @@ class UserRepository implements BaseRepository
   }
 
   /**
+   * @param int $uid ID to exclude from results
+   * @return array<Models\User>
+   */
+  public function findAllExcluded($uid)
+  {
+    $results = [];
+
+    $statement = $this->db->selectPrepared('SELECT * FROM user WHERE uid <> ? ORDER BY name', [$uid]);
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+      $results[] = Models\User::createFromArray($row, false);
+    }
+
+    return $results;
+  }
+
+  /**
    * @param int $id
    * @return Models\User
    */
   public function findByID(int $id)
   {
     $statement = $this->db->selectPrepared('SELECT * FROM user WHERE uid = ? LIMIT 1', [$id]);
-    return Models\User::createFromArray($statement->fetch(\PDO::FETCH_ASSOC), false);
+    return ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? Models\User::createFromArray($result, false) : null;
   }
 
   /**

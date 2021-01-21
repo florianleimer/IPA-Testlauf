@@ -44,10 +44,7 @@
                 </p>
               </a>
               <li class="nav-link">
-                <a href="#" class="nav-item dropdown-item">Profile</a>
-              </li>
-              <li class="nav-link">
-                <a href="#" class="nav-item dropdown-item">Settings</a>
+                <router-link to="/profile" class="nav-item dropdown-item">Profil</router-link>
               </li>
               <div class="dropdown-divider"></div>
               <li class="nav-link">
@@ -62,12 +59,10 @@
 </template>
 <script>
   import { CollapseTransition } from 'vue2-transitions';
-  import Modal from '@/components/Modal';
 
   export default {
     components: {
-      CollapseTransition,
-      Modal
+      CollapseTransition
     },
     computed: {
       routeName() {
@@ -83,7 +78,7 @@
     },
     methods: {
       logout() {
-        sessionStorage.setItem('user', '');
+        this.userHelpers.setUser({});
         this.$router.push('/login');
 
         this.$notify({

@@ -47,13 +47,12 @@ export default {
   beforeMount() {
     const cid = this.$route.params.id;
     if (cid) {
-      this.axios({
-        method: 'GET',
-        url: '/api/customer/'+cid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.customerRequest(
+        'GET',
+        {
+          cid: cid
         }
-      }).then((response) => {
+      ).then((response) => {
         this.customer = {
           cid: response.data.cid,
           name: response.data.name,
@@ -68,16 +67,12 @@ export default {
   },
   methods: {
     save() {
-      this.axios({
-        method: 'POST',
-        url: '/api/customer/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
-        },
-        data: {
+      this.apiHelpers.customerRequest(
+        'POST',
+        {
           customer: this.customer
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Kunde wurde erfolgreich gespeichert!',
           icon: 'fas fa-save',
@@ -85,6 +80,11 @@ export default {
         });
         this.$router.push('/customers');
       }).catch(error => {
+        this.$notify({
+          message: 'Kunde konnte nicht gespeichert werden!',
+          icon: 'fas fa-save',
+          type: 'danger'
+        });
         switch (error.response.status) {
           case 420:
             this.errors = error.response.data;

@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <base-table :data="tableData">
+    <base-table :data="tableData" v-if="hasTableData">
       <template slot="columns">
         <th width="15%">Datum</th>
         <th width="20%">Projekt</th>
@@ -18,10 +18,10 @@
         <th width="12%"></th>
       </template>
       <template v-slot:default="{row}">
-        <td>{{ formatDate(row.date) }}</td>
-        <td>{{ getObjectProperty(row.project, 'name') }}</td>
+        <td>{{ formatHelpers.formatDate(row.date) }}</td>
+        <td>{{ formatHelpers.getObjectProperty(row.project, 'name') }}</td>
         <td>{{ row.time }}</td>
-        <td>{{ trimString(row.description, 30) }}</td>
+        <td>{{ formatHelpers.trimString(row.description, 30) }}</td>
         <td class="text-right">
           <router-link class="btn btn-primary btn-link" :to="'/reports/edit/'+row.rid">
             <i class="fas fa-pen fa-lg"></i>
@@ -32,53 +32,44 @@
         </td>
       </template>
     </base-table>
+    <div class="loader text-white text-center py-5" v-else-if="loading">
+      <i class="fas fa-spinner fa-spin fa-3x"></i>
+    </div>
+    <base-alert type="info" v-else>Keine Reports vorhanden</base-alert>
+
   </div>
 </template>
 
 <script>
 import BaseTable from "@/components/BaseTable";
+import BaseAlert from "@/components/BaseAlert";
 
 export default {
-  components: {BaseTable},
+  components: {BaseAlert, BaseTable},
   data() {
     return {
       tableData: [],
+      loading: true,
     }
   },
   mounted() {
-    this.axios({
-      method: 'GET',
-      url: '/api/report/',
-      headers: {
-        'Authorization': sessionStorage.getItem('user')
-      }
-    }).then(response => {
+    this.apiHelpers.reportRequest(
+      'GET'
+    ).then(response => {
       this.tableData = response.data;
+      this.loading = false;
     }).catch(error => {
       console.log(error);
     });
   },
   methods: {
-    formatDate(dateString) {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
-    },
-    trimString(string, length) {
-      if (string.length <= length) return string;
-      return string.substring(0, length) + '...';
-    },
-    getObjectProperty(object, property) {
-      if (object) return object[property];
-    },
     deletion(rid) {
-      this.axios({
-        method: 'DELETE',
-        url: '/api/report/'+rid+'/',
-        headers: {
-          'Authorization': sessionStorage.getItem('user')
+      this.apiHelpers.reportRequest(
+        'DELETE',
+        {
+          rid: rid
         }
-      }).then(() => {
+      ).then(() => {
         this.$notify({
           message: 'Report wurde erfolgreich gelöscht!',
           icon: 'fas fa-trash',
@@ -88,6 +79,11 @@ export default {
       }).catch(error => {
         console.log(error);
       });
+    }
+  },
+  computed: {
+    hasTableData() {
+      return (this.tableData.length > 0);
     }
   }
 };

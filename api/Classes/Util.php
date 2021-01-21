@@ -3,7 +3,7 @@ namespace ProbeIPA\Classes;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class Util
 {
@@ -23,21 +23,6 @@ class Util
   }
 
   /**
-   * Checks if the value is a valid email address
-   *
-   * @param $value string value to check
-   * @param $empty bool tells if the value can be empty
-   * @return boolean returns if check was successful
-   */
-  public static function CheckEmail(string $value, $empty = false)
-  {
-    $pattern_email = '/^[^@\s<&>]+@([-a-z0-9]+\.)+[a-z]{2,}$/i';
-    if ($empty && empty($value)) return true;
-    if (preg_match($pattern_email, $value)) return true;
-    else return false;
-  }
-
-  /**
    * Checks if value is a name (prename, lastname)
    *
    * @param $value string value to check
@@ -49,53 +34,6 @@ class Util
     $pattern_name = '/^[a-zA-ZäöüÄÖÜ \-]{2,}$/';
     if ($empty && empty($value)) return true;
     if (preg_match($pattern_name, $value)) return true;
-    else return false;
-  }
-
-  /**
-   * Checks if value is a locality
-   *
-   * @param $value string value to check
-   * @param $empty bool tells if the value can be empty
-   * @return boolean returns if check was successful
-   */
-  public static function CheckOrt(string $value, $empty = false)
-  {
-    $pattern_ort = '/^[a-zA-ZäöüÄÖÜ \-]{2,}$/';
-    if ($empty && empty($value)) return true;
-    if (empty($value)) return false;
-    if (preg_match($pattern_ort, $value)) return true;
-    else return false;
-  }
-
-  /**
-   * Checks if value is a street with house number
-   *
-   * @param $value string value to check
-   * @param $empty bool tells if the value can be empty
-   * @return boolean returns if check was successful
-   */
-  public static function CheckStrasse(string $value, $empty = false)
-  {
-    $pattern_ort = '/^[a-zA-ZäöüÄÖÜ \-]{2,}\s\d+$/';
-    if ($empty && empty($value)) return true;
-    if (empty($value)) return false;
-    if (preg_match($pattern_ort, $value)) return true;
-    else return false;
-  }
-
-  /**
-   * Checks if value is a phone number
-   *
-   * @param $value string value to check
-   * @param bool $empty string tells if the value can be empty
-   * @return boolean returns if check was successful
-   */
-  public static function CheckPhone(string $value, $empty = false)
-  {
-    $pattern_phone = '/^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$/';
-    if ($empty && empty($value)) return true;
-    if (preg_match($pattern_phone, $value)) return true;
     else return false;
   }
 
@@ -126,21 +64,6 @@ class Util
     $pattern_date = '/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/'; // 2000-01-01
     if ($empty && empty($value)) return true;
     if (preg_match($pattern_date, $value)) return true;
-    else return false;
-  }
-
-  /**
-   * Checks if value is a valid username
-   *
-   * @param $value string value to check
-   * @param bool $empty string tells if the value can be empty
-   * @return boolean returns if check was successful
-   */
-  public static function CheckUsername(string $value, $empty = false)
-  {
-    $pattern_username = '/^[a-zA-Z0-9.-]{2,}$/';
-    if ($empty && empty($value)) return true;
-    if (preg_match($pattern_username, $value)) return true;
     else return false;
   }
 

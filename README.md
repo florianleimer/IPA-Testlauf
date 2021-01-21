@@ -22,7 +22,7 @@ Run 'npm run serve'
 
 ## Database setup
 ```
-Import adressverwaltung.sql for database structure
+Import probeipa.sql for database structure
 ```
 ```
 Import adressverwaltung.ort.sql for samples of ort records
@@ -32,10 +32,8 @@ Import adressverwaltung.user.sql for users
 ```
 
 ## Users
-Username | Password
------------- | -------------
-muster | testtest
-leimer | florian01
-agarwal | rehan02
-mosimann | daniel19
+Initials | Password | Rolle
+-------- | -------- | -----
+FL | Ecbi26iVwA | Administrator
+DD | EcNO14ofdI | Benutzer
 
