@@ -1,0 +1,8 @@
+{
+    "require": {
+        "rbdwllr/reallysimplejwt": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {"ProbeIPA\\Classes\\": "Classes/"}
+    }
+}
