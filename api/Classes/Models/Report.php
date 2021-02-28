@@ -9,7 +9,7 @@ use ProbeIPA\Classes\Util;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class Report implements \JsonSerializable
 {
@@ -233,6 +233,14 @@ class Report implements \JsonSerializable
     }
   }
 
+  /**
+   * @return bool
+   */
+  public function isEditable(): bool
+  {
+    return in_array($this->project->getStatus(), [Project::STATUS_OPEN, Project::STATUS_SUPPORT]);
+  }
+
   public function jsonSerialize()
   {
     return [
@@ -242,6 +250,7 @@ class Report implements \JsonSerializable
       'time' => $this->getTimeString(),
       'description' => $this->getDescription(),
       'creator' => $this->getCreator(),
+      'isEditable' => $this->isEditable(),
     ];
   }
 }

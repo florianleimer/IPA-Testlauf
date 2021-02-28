@@ -1,6 +1,6 @@
 import Notifications from './Notifications.vue';
 
-const NotificationStore = {
+export const NotificationStore = {
   state: [], // here the notifications will be added
   settings: {
     overlap: false,

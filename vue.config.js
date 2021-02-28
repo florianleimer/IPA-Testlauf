@@ -4,7 +4,7 @@ module.exports = {
   devServer: {
     proxy: {
       '^/api/': {
-        target: 'http://localhost:80/IPA-Testlauf', // TODO: Change to your needs
+        target: 'http://localhost:80/vue/IPA-Testlauf', // TODO: Change to your needs
         changeOrigin: true, // CORS verhindern
       }
     }

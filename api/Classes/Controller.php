@@ -197,7 +197,7 @@ class Controller
           $status = false;
         }
         if (Util::CheckEmpty($userData['initials'], 2)) {
-          $user->setInitials($userData['initials']); // TODO: Check that initials are unique
+          $user->setInitials($userData['initials']);
         } else {
           $hasError['initials'] = true;
           $status = false;

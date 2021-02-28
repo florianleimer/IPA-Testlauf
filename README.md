@@ -25,10 +25,7 @@ Run 'npm run serve'
 Import probeipa.sql for database structure
 ```
 ```
-Import adressverwaltung.ort.sql for samples of ort records
-```
-```
-Import adressverwaltung.user.sql for users
+Import probeipa.user.sql for samples of users
 ```
 
 ## Users

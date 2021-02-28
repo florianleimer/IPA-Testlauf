@@ -8,7 +8,7 @@ use ProbeIPA\Classes\Util;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class Project implements \JsonSerializable
 {

@@ -23,12 +23,14 @@
         <td>{{ row.time }}</td>
         <td>{{ formatHelpers.trimString(row.description, 30) }}</td>
         <td class="text-right">
-          <router-link class="btn btn-primary btn-link" :to="'/reports/edit/'+row.rid">
-            <i class="fas fa-pen fa-lg"></i>
-          </router-link>
-          <base-button @click="deletion(row.rid)" type="primary" link>
-            <i class="fas fa-trash fa-lg"></i>
-          </base-button>
+          <div v-if="row.isEditable">
+            <router-link class="btn btn-primary btn-link" :to="'/reports/edit/'+row.rid">
+              <i class="fas fa-pen fa-lg"></i>
+            </router-link>
+            <base-button @click="deletion(row.rid)" type="primary" link>
+              <i class="fas fa-trash fa-lg"></i>
+            </base-button>
+          </div>
         </td>
       </template>
     </base-table>

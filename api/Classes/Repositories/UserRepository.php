@@ -7,7 +7,7 @@ use ProbeIPA\Classes\Models;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class UserRepository implements BaseRepository
 {

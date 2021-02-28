@@ -3,7 +3,7 @@ namespace ProbeIPA\Classes;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class Rest
 {
@@ -71,6 +71,7 @@ class Rest
       416 => 'Requested Range Not Satisfiable',
       417 => 'Expectation Failed',
       420 => 'Input Validation Failed',
+      430 => 'DB query failed',
       500 => 'Internal Server Error',
       501 => 'Not Implemented',
       502 => 'Bad Gateway',

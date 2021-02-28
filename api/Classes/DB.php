@@ -7,7 +7,7 @@ use PDOStatement;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class DB
 {
@@ -81,7 +81,11 @@ class DB
   public function queryPrepared($sqlTemplate, $data)
   {
     $preparedStatement = $this->connection->prepare($sqlTemplate);
-    $preparedStatement->execute($data);
+    $successful = $preparedStatement->execute($data);
+
+    if (!$successful) {
+      Rest::setHttpHeaders(430, true);
+    }
 
     return $this->connection->lastInsertId();
   }

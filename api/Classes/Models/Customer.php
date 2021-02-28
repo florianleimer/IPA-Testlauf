@@ -7,7 +7,7 @@ use ProbeIPA\Classes\Util;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class Customer implements \JsonSerializable
 {
@@ -52,7 +52,7 @@ class Customer implements \JsonSerializable
 
     $customer->setCid($data['cid'] ?? 0);
     $customer->setName($data['name'] ?? '');
-    $customer->setClientNumber($data['clientNumber'] ?? $data['client_number'] ?? ''); // TODO: Check that clientNumber is unique
+    $customer->setClientNumber($data['clientNumber'] ?? $data['client_number'] ?? '');
     $customer->setAddress($data['address'] ?? '');
     $customer->setComments($data['comments'] ?? '');
 

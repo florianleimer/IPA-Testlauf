@@ -1,8 +1,36 @@
 import axios from 'axios'
+import router from '@/router/index'
+import { NotificationStore } from '@/components/NotificationPlugin'
 
 import config from '@/config'
 import userHelpers from '@/helpers/user-helpers'
 
+function axiosRequest(axiosConfig) {
+  return new Promise((resolve, reject) => {
+    axios(axiosConfig).then((response) => {
+      resolve(response);
+    }).catch(error => {
+      if (error.response) {
+        switch (error.response.status) {
+          case 403:
+            userHelpers.setUser({});
+            router.push('/login');
+            return;
+          case 406:
+          case 430:
+          case 500:
+            NotificationStore.notify({
+              message: error.response.statusText,
+              icon: 'fas fa-exclamation',
+              type: 'danger'
+            });
+            return;
+        }
+      }
+      reject(error);
+    });
+  });
+}
 
 const loginRequest = function (method, data) {
 
@@ -24,8 +52,7 @@ const loginRequest = function (method, data) {
     }
   }
 
-  return axios(axiosConfig);
-
+  return axiosRequest(axiosConfig);
 }
 
 // Private - Function not exported
@@ -53,8 +80,7 @@ const authorizedRequest = function (method, url, data) {
     }
   }
 
-  return axios(axiosConfig);
-
+  return axiosRequest(axiosConfig);
 }
 
 const customerRequest = function (method, data) {

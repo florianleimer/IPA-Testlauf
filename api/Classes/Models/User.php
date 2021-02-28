@@ -7,7 +7,7 @@ use ProbeIPA\Classes\Util;
 
 /**
  * @autor Florian Leimer
- * @version 2020
+ * @version 2021
  */
 class User implements \JsonSerializable
 {
@@ -60,7 +60,7 @@ class User implements \JsonSerializable
 
     $user->setUid($data['uid'] ?? 0);
     $user->setName($data['name'] ?? '');
-    $user->setInitials($data['initials'] ?? ''); // TODO: Check that initials are unique
+    $user->setInitials($data['initials'] ?? '');
     $user->setPassword($data['password'] ?? '');
     $user->setActive($data['active'] ?? false);
     $user->setStatus($data['status'] ?? self::STATUS_USER);
