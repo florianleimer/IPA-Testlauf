@@ -276,6 +276,14 @@ class Project implements \JsonSerializable
     $this->comments = $comments;
   }
 
+  /**
+   * @return bool
+   */
+  public function isOpen(): bool
+  {
+    return in_array($this->status, [self::STATUS_OPEN, self::STATUS_SUPPORT]);
+  }
+
   public function jsonSerialize()
   {
     return [
@@ -287,6 +295,7 @@ class Project implements \JsonSerializable
       'volume' => $this->getVolume(),
       'projectManager' => $this->getProjectManager(),
       'comments' => $this->getComments(),
+      'isOpen' => $this->isOpen(),
     ];
   }
 }

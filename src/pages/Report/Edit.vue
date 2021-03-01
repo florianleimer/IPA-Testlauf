@@ -14,7 +14,7 @@
       <base-input label="Projekt">
         <select class="form-control" :class="{'is-invalid': errors.project}" v-model="report.project">
           <option value="0"></option>
-          <option v-for="project in projectData" :key="project.pid" :value="project.pid">{{ project.name }}</option>
+          <option v-for="project in projectData" :key="project.pid" :value="project.pid" v-if="project.isOpen">{{ project.name }}</option>
         </select>
       </base-input>
       <base-input label="Aufgewendete Zeit" type="time" v-model="report.time" :has-error="errors.time"></base-input>
